@@ -28,6 +28,21 @@ elseif G.cine_quests and card.ability.set == "Cine" then
 match_indent = true
 overwrite = false
 
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = '''G.playing_cards = {}'''
+position = "before"
+payload = '''
+self.cine_quests = CardArea(0, 0, CAI.deck_W, CAI.deck_H, {
+    card_limit = self.GAME.starting_params.cine_quest_slots,
+    type = "joker",
+    highlight_limit = 1
+})
+'''
+match_indent = true
+overwrite = false
+
 # Inject description variables for Cine Cards
 [[patches]]
 [patches.pattern]

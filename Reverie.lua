@@ -329,12 +329,6 @@ end
 
 local start_run_ref = Game.start_run
 function Game:start_run(args)
-    self.cine_quests = CardArea(0, 0, G.CARD_W * 1.1, 0.95 * G.CARD_H, {
-        card_limit = self.GAME.starting_params.cine_quest_slots,
-        type = "joker",
-        highlight_limit = 1
-    })
-
     start_run_ref(self, args)
 
     -- Allowing modded consumables to be appear in Crazy Lucky Pack
