@@ -356,7 +356,7 @@ local set_screen_positions_ref = set_screen_positions
 function set_screen_positions()
     set_screen_positions_ref()
 
-    if G.cine_quests then
+    if G.STAGE == G.STAGES.RUN and G.cine_quests then
         G.cine_quests.T.x = G.TILE_W - G.cine_quests.T.w - 0.3
         G.cine_quests.T.y = 3
         G.cine_quests:hard_set_VT()
@@ -1138,18 +1138,7 @@ end
 
 local use_consumeable_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
-    if self.ability.set == "Cine" and self.ability.progress then
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                local reward = Card(G.consumeables.T.x + G.consumeables.T.w / 2, G.consumeables.T.y, G.CARD_W, G.CARD_H, G.P_CARDS.empty, G.P_CENTERS[self.config.center.reward])
-                reward:start_materialize()
-                self:start_dissolve()
-                G.consumeables:emplace(reward)
-
-                return true
-            end
-        }))
-    elseif self.ability.set == "Cine" then
+    if self.ability.set == "Cine" then
         if not G.GAME.current_round.used_cine then
             G.GAME.current_round.used_cine = {}
         end
@@ -1771,7 +1760,7 @@ function progress_cine_quest(card)
         })
     end
 
-    if card.ability.progress >= card.ability.progress_goal then
+    if card.ability.progress == card.ability.progress_goal then
         G.E_MANAGER:add_event(Event({
             func = function()
                 local percent = 1.15 - (1 - 0.999) / (1 - 0.998) * 0.3
