@@ -194,7 +194,7 @@ return {
                 text = {
                     "This Joker gains {C:chips}+#2#{} Chips",
                     "every time an {C:cine}Exchange Coupon",
-                    "is progressing",
+                    "progresses",
                     "{C:inactive}(Currently +{C:chips}#1#{C:inactive} Chips)"
                 }
             }
