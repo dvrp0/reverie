@@ -1,0 +1,826 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''local _area = G.P_CENTERS[joker].consumeable and G.consumeables or G.jokers'''
+position = "after"
+payload = '''
+if G.P_CENTERS[joker].set == "Cine" then
+    _area = G.cine_quests
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif G.consumeables then G.consumeables:emplace(card) end'''
+position = "before"
+payload = '''
+elseif G.cine_quests and card.ability.set == "Cine" then
+    G.cine_quests:emplace(card)
+'''
+match_indent = true
+overwrite = false
+
+# Inject description variables for Cine Cards
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''elseif self.ability.set == 'Joker' then -- all remaining jokers'''
+position = "before"
+payload = '''
+elseif self.ability.set == "Cine" and self.ability.progress then
+    if self.config.center.reward == "c_unseen" then
+        loc_vars = {self.ability.extra.slots, self.ability.extra.rounds, self.ability.progress}
+    elseif self.config.center.reward == "c_ive_no_shape" then
+        loc_vars = {self.ability.extra.chips, self.ability.extra.blinds, self.ability.progress}
+    else
+        loc_vars = {self.ability.extra, self.ability.progress}
+    end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "tag.lua"
+pattern = '''tag_sprite.ability_UIBox_table = generate_card_ui(G.P_TAGS[self.key], nil, loc_vars, (self.hide_ability) and 'Undiscovered' or 'Tag', nil, (self.hide_ability))'''
+position = "before"
+payload = '''
+-- find_used_cine_or("Tag or Die", "Crazy Lucky")
+if self.ability.as_card and name_to_check == "Skip Tag" then
+    loc_vars[2] = self.config.skip_bonus * (G.GAME.skips or 0)
+end
+'''
+match_indent = true
+overwrite = false
+
+# Inject description variables for Cine cards
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif _c.set == 'Tarot' then'''
+position = "before"
+payload = '''
+elseif _c.set == "Cine" then
+    if _c.reward then
+        info_queue[#info_queue+1] = G.P_CENTERS[_c.reward]
+    else
+        if _c.name == "Tag or Die" then
+            loc_vars = {_c.config.extra.cost}
+        elseif _c.name == "I Sing, I've No Shape" or _c.name == "The Unseen" or _c.name == "Let It Moon" then
+            loc_vars = {_c.config.extra.mult}
+        elseif _c.name == "Crazy Lucky" then
+            info_queue[#info_queue+1] = G.P_CENTERS.p_crazy_lucky_1
+        else
+            loc_vars = {_c.config.extra}
+        end
+    end
+
+    localize{type = "descriptions", key = _c.key, set = _c.set, nodes = desc_nodes, vars = specific_vars or loc_vars}
+'''
+match_indent = true
+overwrite = false
+
+# When Tag or Die is used, Tags and its packs will be available in the shop
+# Inject description variables for Tag Packs
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif _c.name == 'Mega Buffoon Pack' then desc_override = 'p_buffoon_mega'; loc_vars = {_c.config.choose, _c.config.extra}'''
+position = "after"
+payload = '''
+elseif _c.name == "Tag Pack" then desc_override = "p_tag_normal"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Jumbo Tag Pack" then desc_override = "p_tag_jumbo"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Mega Tag Pack" then desc_override = "p_tag_mega"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Pack" then desc_override = "p_crazy_lucky"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Flipped Pack" then desc_override = "p_adrifting"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Film Pack" then desc_override = "p_film_normal"; loc_vars = {_c.config.choose, _c.config.extra}
+'''
+match_indent = true
+overwrite = false
+
+# Inject description variables for modded Vouchers
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif _c.name == "Clearance Sale" or _c.name == "Liquidation" then loc_vars = {_c.config.extra}'''
+position = "after"
+payload = '''
+elseif _c.name == "Audience" then loc_vars = {_c.config.extra}
+'''
+match_indent = true
+overwrite = false
+
+# Inject description variables for modded tags
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif _c.name == 'Buffoon Tag' then info_queue[#info_queue+1] = G.P_CENTERS.p_buffoon_mega_1*'''
+position = "after"
+payload = '''
+elseif _c.name == "Stub Tag" then info_queue[#info_queue+1] = G.P_CENTERS.p_flim_normal_1
+elseif _c.name == "Mark Tag" then info_queue[#info_queue+1] = G.P_CENTERS.p_tag_normal_1
+elseif _c.name == "Stamp Tag" then info_queue[#info_queue+1] = G.P_CENTERS.p_tag_jumbo_1'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "back.lua"
+pattern = '''elseif name_to_check == 'Erratic Deck' then'''
+position = "before"
+payload = '''
+elseif name_to_check == "Filmstrip Deck" then
+    loc_args = {effect_config.cine_slot}
+elseif name_to_check == "Stamp Deck" then
+    loc_args = {
+        localize{
+            type = "name_text",
+            key = "p_tag_jumbo",
+            set = "Other"
+        }
+    }
+'''
+match_indent = true
+overwrite = false
+
+# Add Cine cards button to the collection page
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''UIBox_button({button = 'your_collection_spectrals', label = {localize('b_spectral_cards')}, count = G.DISCOVER_TALLIES.spectrals, minw = 4, id = 'your_collection_spectrals', colour = G.C.SECONDARY_SET.Spectral}),'''
+position = "after"
+payload = '''
+UIBox_button({button = 'your_collection_cines', label = {localize('b_cine_cards')}, count = G.DISCOVER_TALLIES.cines, minw = 4, id = 'your_collection_cines', colour = G.C.SECONDARY_SET.Cine}),
+'''
+match_indent = true
+overwrite = false
+
+# Handle Cine cards in Card:can_use_consumeable()
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''if G.STATE == G.STATES.SELECTING_HAND or G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.PLANET_PACK then'''
+position = "before"
+payload = '''
+if self.ability.set == "Cine" then
+    if G.GAME.used_vouchers.v_virtuoso and G.STATE == G.STATES.BLIND_SELECT then
+        return true
+    elseif self.config.center.reward then
+        return false
+    elseif self.ability.name == "I Sing, I've No Shape" then
+        return G.jokers.cards
+    else
+        return G.STATE == G.STATES.SHOP and G.shop
+    end
+end
+'''
+match_indent = true
+overwrite = false
+
+# Add fallback for Cine card
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif _type == 'Tag' then _pool[#_pool + 1] = "tag_handy"'''
+position = "after"
+payload = '''
+elseif _type == "Cine" then _pool[#_pool + 1] = "c_gem_heist"
+elseif _type == "Cine_Quest" then _pool[#_pool + 1] = "c_gem_heist_quest"'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''G.shop:remove()'''
+position = "before"
+payload = '''
+if G.GAME.cached_oddity_rate then
+    G.GAME.oddity_rate = G.GAME.cached_oddity_rate
+end
+
+if G.GAME.cached_alchemical_rate then
+    G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
+end
+
+G.GAME.current_round.used_cine = nil
+set_cine_banned_keys()'''
+match_indent = true
+overwrite = false
+
+# Make the card uses Tags' sprite atlas
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.set], self.config.center.pos)'''
+position = "after"
+payload = '''
+elseif _center.set == "Tag" then
+    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.atlas or "tags"], self.config.center.pos)
+'''
+match_indent = true
+overwrite = false
+
+# Disable buy space check for Tags
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''card.ability.set ~= 'Default' and'''
+position = "before"
+payload = '''
+card.ability.set ~= "Tag" and
+'''
+match_indent = true
+overwrite = false
+
+# Prevent Tags from being added to the deck
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''c1:add_to_deck()'''
+position = "after"
+payload = '''
+::reverie_buy_from_shop_tag_skip::'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''c1:add_to_deck()'''
+position = "before"
+payload = '''
+if c1.ability.set == "Tag" then
+    goto reverie_buy_from_shop_tag_skip
+end'''
+match_indent = true
+overwrite = true
+
+# When Tags are purchased, properly add them to the game and remove from the shop
+# If their abilitys are okay to be activated immediately, do so
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''G.consumeables:emplace(c1)'''
+position = "after"
+payload = '''
+elseif c1.ability.set == "Tag" then
+    add_tag(c1.ability.tag)
+    c1:remove()
+
+    play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
+    play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
+
+    for _, v in ipairs(G.GAME.tags) do
+        v:apply_to_run({type = "immediate"})
+    end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''G.GAME.pack_choices = self.config.center.config.choose or 1'''
+position = "before"
+payload = '''
+if self.ability.name:find("Tag") then
+    G.STATE = G.STATES.TAG_PACK
+    G.GAME.pack_size = self.ability.extra
+elseif self.ability.name == "Pack" then
+    G.STATE = G.STATES.CRAZY_PACK
+    G.GAME.pack_size = self.ability.extra
+elseif self.ability.name:find("Film") then
+    G.STATE = G.STATES.FILM_PACK
+    G.GAME.pack_size = self.ability.extra
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Planet, G.C.BLACK, 0.9))'''
+position = "after"
+payload = '''
+elseif state == G.STATES.TAG_PACK then
+    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Tag, G.C.BLACK, 0.9))
+elseif state == G.STATES.CRAZY_PACK then
+    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))
+elseif state == G.STATES.FILM_PACK then
+    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''ease_background_colour{new_colour = G.C.BLACK, contrast = 3}'''
+position = "after"
+payload = '''
+elseif state == G.STATES.TAG_PACK then
+    ease_background_colour{new_colour = G.C.SECONDARY_SET.Tag, special_colour = G.C.BLACK, contrast = 2}
+elseif state == G.STATES.CRAZY_PACK then
+    ease_background_colour{new_colour = darken(G.C.RED, 0.2), special_colour = darken(G.C.SECONDARY_SET.Cine, 0.4), tertiary_colour = darken(G.C.BLACK, 0.2), contrast = 3}
+elseif state == G.STATES.FILM_PACK then
+    ease_background_colour{new_colour = G.C.SECONDARY_SET.Cine, special_colour = G.C.BLACK, contrast = 2}'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''card = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, 'buf')'''
+position = "after"
+payload = '''
+elseif self.ability.name:find("Tag") then
+    local excludes = {}
+    for _, v in ipairs(pack_cards) do
+        table.insert(excludes, v.config.center.key)
+    end
+    card = create_tag_as_card(G.pack_cards, true, excludes)
+elseif self.ability.name == "Pack" then
+    local excludes = {}
+    for _, v in ipairs(pack_cards) do
+        table.insert(excludes, v.config.center.key)
+    end
+    card = create_crazy_random_card(G.pack_cards, excludes)
+elseif self.ability.name:find("Film") then
+    card = create_card("Cine_Quest", G.pack_cards, nil, nil, true, true, nil, 'film')
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''card.T.x = self.T.x'''
+position = "before"
+payload = '''
+::reverie_skip_create_card::
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''card = create_card((pseudorandom(pseudoseed('stdset'..G.GAME.round_resets.ante)) > 0.6)*'''
+position = "before"
+payload = '''
+if find_used_cine("Poker Face") then
+    card = create_poker_face_card(G.pack_cards)
+    goto reverie_skip_create_card
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''card = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, 'buf')'''
+position = "before"
+payload = '''
+local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape")
+
+if morsel or i_sing then
+    if morsel and not i_sing then
+        card = create_morsel_card(G.pack_cards)
+    elseif i_sing and not morsel then
+        card = create_i_sing_card(G.pack_cards)
+    elseif pseudorandom("cine_joker") >= 0.5 then
+        card = create_morsel_card(G.pack_cards)
+    else
+        card = create_i_sing_card(G.pack_cards)
+    end
+
+    goto reverie_skip_create_card
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''self.params = cardTable.params'''
+position = "after"
+payload = '''
+if cardTable.label == "Tag" then
+    self.config.center = G.P_TAGS[self.config.center_key]
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''self.VT.h = self.T.H'''
+position = "before"
+payload = '''
+if cardTable.label == "Tag" then
+    self.T.h = 0.8
+    self.T.w = 0.8
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "cardarea.lua"
+pattern = '''(self.config.type == 'hand' and ({[G.STATES.SHOP]=1, [G.STATES.TAROT_PACK]=1, [G.STATES.SPECTRAL_PACK]=1, [G.STATES.STANDARD_PACK]=1,[G.STATES.BUFFOON_PACK]=1,[G.STATES.PLANET_PACK]=1, [G.STATES.ROUND_EVAL]=1, [G.STATES.BLIND_SELECT]=1})[state]) or'''
+position = "after"
+payload = '''
+(self.config.type == 'hand' and ({[G.STATES.TAG_PACK]=1, [G.STATES.CRAZY_PACK]=1, [G.STATES.FILM_PACK]=1})[state]) or'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = '''if self.STATE == self.STATES.GAME_OVER then'''
+position = "before"
+payload = '''
+if self.STATE == self.STATES.TAG_PACK then
+    self:update_tag_pack(dt)
+end
+
+if self.STATE == self.STATES.CRAZY_PACK then
+    self:update_crazy_pack(dt)
+end
+
+if self.STATE == self.STATES.FILM_PACK then
+    self:update_film_pack(dt)
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''(G.STATE == G.STATES.BUFFOON_PACK and G.STATES.BUFFOON_PACK) or'''
+position = "after"
+payload = '''
+(G.STATE == G.STATES.TAG_PACK and G.STATES.TAG_PACK) or
+(G.STATE == G.STATES.CRAZY_PACK and G.STATES.CRAZY_PACK) or
+(G.STATE == G.STATES.FILM_PACK and G.STATES.FILM_PACK) or'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''prev_state == G.STATES.SPECTRAL_PACK or prev_state == G.STATES.STANDARD_PACK or'''
+position = "after"
+payload = '''prev_state == G.STATES.TAG_PACK or prev_state == G.STATES.CRAZY_PACK or prev_state == G.STATES.FILM_PACK or'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''e.config.ref_table:redeem()'''
+position = "after"
+payload = '''
+elseif card.ability.set == "Tag" then
+    add_tag(card.ability.tag)
+    card:remove()
+
+    play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
+    play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
+
+    for _, v in ipairs(G.GAME.tags) do
+        v:apply_to_run({type = "immediate"})
+    end
+
+    dont_dissolve = true
+    delay_fac = 0.2'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''(self.ability.set == 'Spectral' and {G.C.SECONDARY_SET.Spectral}) or'''
+position = "after"
+payload = '''
+(self.ability.set == 'Cine' and {G.C.SECONDARY_SET.Cine}) or'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''if self.ability.name == 'Invisible Joker' and (self.config.center.discovered or self.bypass_discovery_center) then'''
+position = "before"
+payload = '''
+if self.ability.set == "Cine" then
+    if self.ability.name == "The Unseen" then
+        self.children.center:draw_shader("negative_shine", nil, self.ARGS.send_to_shader)
+    elseif self.ability.name == "I Sing, I've No Shape" and (not self.edition or not self.edition.negative) then
+        self.children.center:draw_shader("ticket_polychrome", nil, self.ARGS.send_to_shader)
+    else
+        self.children.center:draw_shader("ticket", nil, self.ARGS.send_to_shader)
+    end
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''elseif not self.greyed then'''
+position = "before"
+payload = '''
+elseif self.ability.set == "Cine" and self.ability.name == "The Unseen" and (self.config.center.discovered or self.bypass_discovery_center) then
+    self.children.center:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
+
+    if self.children.front then
+        self.children.front:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
+    end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''elseif card.ability.set == 'Enhanced' or card.ability.set == 'Default'*'''
+position = "before"
+payload = '''
+::reverie_use_card_consumable_skip::'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''if card.ability.consumeable then'''
+position = "after"
+payload = '''
+if G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK then
+    (card.ability.set == "Cine" and G.cine_quests or G.consumeables):emplace(card)
+    card:add_to_deck()
+    play_sound('card1', 0.8, 0.6)
+    play_sound('generic1')
+    dont_dissolve = true
+    delay_fac = 0.2
+
+    goto reverie_use_card_consumable_skip
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''G.GAME.current_round.voucher = nil'''
+position = "after"
+payload = '''
+::reverie_redeem_voucher_skip::'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''local bot_dynatext = nil'''
+position = "after"
+payload = '''
+if G.STATE == G.STATES.CRAZY_PACK then
+    G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+            top_dynatext = DynaText({string = localize{type = 'name_text', set = self.config.center.set, key = self.config.center.key}, colours = {G.C.WHITE}, rotate = 1,shadow = true, bump = true,float=true, scale = 0.9, pop_in = 0.6/G.SPEEDFACTOR, pop_in_rate = 1.5*G.SPEEDFACTOR})
+            bot_dynatext = DynaText({string = localize('k_redeemed_ex'), colours = {G.C.WHITE}, rotate = 2,shadow = true, bump = true,float=true, scale = 0.9, pop_in = 1.4/G.SPEEDFACTOR, pop_in_rate = 1.5*G.SPEEDFACTOR, pitch_shift = 0.25})
+            self:juice_up(0.3, 0.5)
+            play_sound('card1')
+            self.children.top_disp = UIBox{
+                definition =    {n=G.UIT.ROOT, config = {align = 'tm', r = 0.15, colour = G.C.CLEAR, padding = 0.15}, nodes={
+                                    {n=G.UIT.O, config={object = top_dynatext}}
+                                }},
+                config = {align="tm", offset = {x=0,y=0},parent = self}
+            }
+            self.children.bot_disp = UIBox{
+                    definition =    {n=G.UIT.ROOT, config = {align = 'tm', r = 0.15, colour = G.C.CLEAR, padding = 0.15}, nodes={
+                                        {n=G.UIT.O, config={object = bot_dynatext}}
+                                    }},
+                    config = {align="bm", offset = {x=0,y=0},parent = self}
+                }
+        return true end }))
+
+    inc_career_stat('c_vouchers_bought', 1)
+    set_voucher_usage(self)
+    check_for_unlock({type = 'run_redeem'})
+
+    if G.GAME.current_round.voucher == self.config.center_key then
+        G.GAME.current_round.voucher = nil
+    end
+
+    goto reverie_redeem_voucher_skip
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''local temp_tag_ui, temp_tag_sprite = temp_tag:generate_UI()'''
+position = "after"
+payload = '''
+local index, subindex = math.ceil((k - 1) / 6 + 0.001), 1 + ((k - 1) % 6)
+
+if not tag_matrix[index] then
+    tag_matrix[index] = {}
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''tag_matrix[math.ceil((k-1)/6+0.001)][1+((k-1)%6)]*'''
+position = "at"
+payload = '''
+tag_matrix[index][subindex] = {n=G.UIT.C, config={align = "cm", padding = 0.1}, nodes={'''
+match_indent = true
+overwrite = true
+
+[[patches]]
+[patches.pattern]
+target = "tag.lua"
+pattern = '''local tag_sprite = Sprite(0,0,_size*1,_size*1,G.ASSET_ATLAS["tags"], (self.hide_ability) and G.tag_undiscovered.pos or self.pos)'''
+position = "after"
+payload = '''
+if self.atlas and not self.hide_ability then
+    tag_sprite = Sprite(0, 0, _size * 1, _size * 1, G.ASSET_ATLAS[self.atlas], self.pos)
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''(_center.set == 'Voucher' and G.v_undiscovered.pos) or*'''
+position = "after"
+payload = '''
+((_center.set == "Cine" or _center.set == "Cine_Quest") and G.cine_undiscovered.pos) or'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''elseif _center.set == 'Joker' or _center.consumeable or _center.set == 'Voucher' then*'''
+position = "before"
+payload = '''
+if _center.set == "Booster" and _center.atlas == "cine_boosters" then
+    self.children.center = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS[_center.set], G.booster_undiscovered.pos)
+end'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''elseif card.area == G.hand then'''
+position = "before"
+payload = '''
+elseif card.area == G.cine_quests then
+    y_off = 0.05 * card.T.h'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.regex]
+target = "functions/button_callbacks.lua"
+pattern = '''ease_background_colour_blind\(G.GAME.PACK_INTERRUPT\)\n.*\n.*\n.*\n(?<indent>[ \t]*)for i = 1, #G\.GAME\.tags do\n'''
+position = "after"
+line_prepend = "$indent"
+payload = '''
+if G.shop then
+    break -- blocking newly gained new_blind_choice tags from triggering in shop
+end
+
+'''
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''if self.sticker then loc_vars = loc_vars or {}; loc_vars.sticker=self.sticker end'''
+position = "after"
+payload = '''
+if self.ability.set == "Joker" and self.ability.name == "Diet Cola" and self.ability.morseled then
+    loc_vars.morsel_alternative = self.config.center_key.."_morsel_alternative"
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.regex]
+target = "functions/common_events.lua"
+pattern = '''elseif _c\.set == .Joker. then(\n.*?)*?.+?specific_vars\.sticker.+?(\n.*?)*?(?<indent>[ \t]*)localize\{type = .descriptions.+?\n'''
+position = "after"
+line_prepend = "$indent"
+payload = '''
+if specific_vars and specific_vars.morsel_alternative then
+    full_UI_table.main = {}
+    localize{type = 'descriptions', key = specific_vars.morsel_alternative, set = _c.set, nodes = full_UI_table.main, vars = specific_vars or {}}
+end
+
+'''
+
+[[patches]]
+[patches.regex]
+target = "card.lua"
+pattern = '''Card:add_to_deck\(.*(\n.*?)*?if self\.edition and self\.edition\.negative.*(\n.*?)*?(?<indent>[ \t]*)if self\.ability\.consumeable then'''
+position = "after"
+root_capture = "$indent"
+line_prepend = "$indent"
+payload = '''
+
+if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+    G.cine_quests.config.card_limit = G.cine_quests.config.card_limit + 1
+    if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
+
+    return
+end
+
+'''
+
+[[patches]]
+[patches.regex]
+target = "card.lua"
+pattern = '''Card:remove_from_deck\(.*(\n.*?)*?if self\.edition and self\.edition\.negative.*(\n.*?)*?(?<indent>[ \t]*)if self\.ability\.consumeable then'''
+position = "after"
+root_capture = "$indent"
+line_prepend = "$indent"
+payload = '''
+
+if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+    G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
+    if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
+
+    return
+end
+
+'''
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''if not G.OVERLAY_MENU then'''
+position = "before"
+payload = '''
+::reverie_queue_negative_removal_skip::
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.regex]
+target = "card.lua"
+pattern = '''Card:remove\(.*(\n.*?)*?if self\.ability\.queue_negative_removal.*(\n.*?)*?(?<indent>[ \t]*)if self\.ability\.consumeable then'''
+position = "after"
+root_capture = "$indent"
+line_prepend = "$indent"
+payload = '''
+
+if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+    G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
+    goto reverie_queue_negative_removal_skip
+end
+
+'''
+
+[[patches]]
+[patches.regex]
+target = "functions/button_callbacks.lua"
+pattern = '''G\.FUNCS\.reroll_shop.*(\n.*?)*?(?<indent>[ \t]*)for i = 1, G\.GAME\.shop\.joker_max - #G\.shop_jokers\.cards do.*(\n.*?)*?.+create_card_for_shop'''
+position = "after"
+root_capture = "$indent"
+line_prepend = "$indent"
+payload = '''
+
+if G.GAME.current_round.used_cine then
+    for i = 1, G.GAME.shop.joker_max - #G.shop_jokers.cards do
+        local new_shop_card = create_card_for_cine_shop(G.shop_jokers)
+        G.shop_jokers:emplace(new_shop_card)
+        new_shop_card:juice_up()
+    end
+
+    return true
+end
+
+'''
