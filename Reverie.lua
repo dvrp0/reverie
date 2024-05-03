@@ -1235,7 +1235,7 @@ local card_open_ref = Card.open
 function Card:open()
     card_open_ref(self)
 
-    if G.cine_quests and self.ability.set == "Booster" then
+    if G.cine_quests and (self.ability.set == "Booster" or self.ability.set == "Booster_dx") then
         G.E_MANAGER:add_event(Event({
             func = function()
                 for _, v in ipairs(G.cine_quests.cards) do
@@ -1593,10 +1593,7 @@ function Back:apply_to_run()
     back_apply_to_run_ref(self)
 
     if self.effect.config.cine_slot then
-        -- G.GAME.starting_params.cine_quest_slots = G.GAME.starting_params.cine_quest_slots + self.effect.config.cine_slotif G.jokers then 
-        if G.cine_quests then
-            G.cine_quests.config.card_limit = G.cine_quests.config.card_limit + 1
-        end
+        G.GAME.starting_params.cine_quest_slots = G.GAME.starting_params.cine_quest_slots + self.effect.config.cine_slot
     end
 end
 
