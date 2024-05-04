@@ -1747,7 +1747,7 @@ function Card:calculate_joker(context)
     end
 
     if self.ability.set == "Cine" and self.ability.progress then
-        if (self.config.center.reward == "c_gem_heist" and context.selling_card and context.card.edition)
+        if (self.config.center.reward == "c_gem_heist" and context.selling_card and context.card.ability.set == "Joker" and context.card.edition)
         or (self.config.center.reward == "c_ive_no_shape" and context.end_of_round and not context.individual and not context.repetition
             and G.GAME.chips >= G.GAME.blind.chips * self.ability.extra.chips)
         or (self.config.center.reward == "c_unseen" and context.end_of_round and not context.individual and not context.repetition
