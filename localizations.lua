@@ -34,7 +34,8 @@ return {
                     "During this shop,",
                     "all {C:attention}Jokers{} and {C:attention}consumables",
                     "become {C:dark_edition}Negative",
-                    "{C:red}X#1#{} reroll cost"
+                    "{C:red}X#1#{} reroll cost",
+                    "{s:0.8}Rerolls cards"
                 }
             },
             c_gem_heist_quest = {
@@ -51,7 +52,8 @@ return {
                 text = {
                     "During this shop,",
                     "all cards become",
-                    "{C:dark_edition}Polychrome{} and {C:attention}25%{} off"
+                    "{C:dark_edition}Polychrome{} and {C:attention}25%{} off",
+                    "{s:0.8}Rerolls cards"
                 }
             },
             c_crazy_lucky_quest = {
@@ -157,7 +159,7 @@ return {
                     "During this shop,",
                     "everything is {C:attention}faced",
                     "{C:attention}down{} and costs {C:money}$#1#",
-                    "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
+                    "{s:0.8}Rerolls cards and {s:0.8,C:attention}Booster Packs"
                 }
             },
             c_morsel_quest = {
@@ -356,7 +358,8 @@ return {
                     "이번 상점 동안에는",
                     "모든 {C:attention}조커{}와 {C:attention}소모품{}이",
                     "{C:dark_edition}네거티브{}가 됩니다",
-                    "새로고침 비용 {C:red}#1#{}배"
+                    "새로고침 비용 {C:red}#1#{}배",
+                    "{s:0.8}카드 새로고침"
                 }
             },
             c_gem_heist_quest = {
@@ -372,7 +375,8 @@ return {
                 text = {
                     "이번 상점 동안에는",
                     "모든 카드가 {C:dark_edition}홀로그래픽{}이",
-                    "되고 {C:attention}25%{} 할인됩니다"
+                    "되고 {C:attention}25%{} 할인됩니다",
+                    "{s:0.8}카드 새로고침"
                 }
             },
             c_crazy_lucky_quest = {
@@ -473,7 +477,7 @@ return {
                     "이번 상점 동안에는",
                     "모든 것이 {C:attention}무료{}지만",
                     "{C:attention}뒤집혀서{} 나타납니다",
-                    "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
+                    "카드 및 {s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             },
             c_morsel_quest = {
