@@ -587,8 +587,23 @@ function create_crazy_random_card(area, excludes)
         else
             card = create_card(target, area, nil, nil, true, true, nil, "crazy_j")
         end
-    elseif target == "Consumeables" or target == "Voucher" then
-        card = create_card(target, area, nil, nil, true, true, nil, "crazy_cv")
+    elseif target == "Consumeables" then
+        local moon, eerie = find_used_cine("Let It Moon"), find_used_cine("Eerie Inn")
+
+        if moon or eerie then
+            if (moon and not eerie) or (moon and eerie and pseudorandom("cine_consumable") > 0.5) then
+                card = create_card(pseudorandom_element({
+                    "Tarot",
+                    "Planet"
+                }, pseudoseed("cine_tr")), area, nil, nil, true, true, nil, "crazy_tr")
+            else
+                card = create_card("Spectral", area, nil, nil, true, true, nil, "crazy_s")
+            end
+        else
+            card = create_card(target, area, nil, nil, true, true, nil, "crazy_cv")
+        end
+    elseif target == "Voucher" then
+        card = create_card(target, area, nil, nil, true, true, nil, "crazy_v")
     elseif target == "Playing" then
         if find_used_cine("Poker Face") then
             card = create_poker_face_card(G.pack_cards)
@@ -1195,26 +1210,22 @@ function Card:use_consumeable(area, copier)
 
                         local card = nil
 
-                        -- if crazy then
-                        --     card = create_crazy_booster(G.shop_booster)
-                        -- else
-                            if kinds then
-                                kind = pseudorandom_element(kinds, pseudoseed("cine_booster"))
-                            end
+                        if kinds then
+                            kind = pseudorandom_element(kinds, pseudoseed("cine_booster"))
+                        end
 
-                            G.GAME.current_round.used_packs = {}
-                            if not G.GAME.current_round.used_packs[i] then
-                                G.GAME.current_round.used_packs[i] = kind and get_pack_by_slug("shop_pack", kind).key or get_pack("shop_pack").key
-                            end
+                        G.GAME.current_round.used_packs = {}
+                        if not G.GAME.current_round.used_packs[i] then
+                            G.GAME.current_round.used_packs[i] = kind and get_pack_by_slug("shop_pack", kind).key or get_pack("shop_pack").key
+                        end
 
-                            if G.GAME.current_round.used_packs[i] ~= "USED" then
-                                card = Card(G.shop_booster.T.x + G.shop_booster.T.w / 2, G.shop_booster.T.y,
-                                    G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, G.P_CENTERS[G.GAME.current_round.used_packs[i]], {
-                                        bypass_discovery_center = true,
-                                        bypass_discovery_ui = true
-                                    })
-                            end
-                        -- end
+                        if G.GAME.current_round.used_packs[i] ~= "USED" then
+                            card = Card(G.shop_booster.T.x + G.shop_booster.T.w / 2, G.shop_booster.T.y,
+                                G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, G.P_CENTERS[G.GAME.current_round.used_packs[i]], {
+                                    bypass_discovery_center = true,
+                                    bypass_discovery_ui = true
+                                })
+                        end
 
                         create_shop_card_ui(card, "Booster", G.shop_booster)
                         card.ability.booster_pos = i
@@ -1231,9 +1242,9 @@ function Card:use_consumeable(area, copier)
     end
 end
 
-local card_open_ref = Card.open
-function Card:open()
-    card_open_ref(self)
+local card_explode_ref = Card.explode
+function Card:explode(dissolve_colours, explode_time_fac)
+    card_explode_ref(self, dissolve_colours, explode_time_fac)
 
     if G.cine_quests and (self.ability.set == "Booster" or self.ability.set == "Booster_dx") then
         G.E_MANAGER:add_event(Event({
@@ -1671,6 +1682,16 @@ end
 
 local set_ability_ref = Card.set_ability
 function Card:set_ability(center, initial, delay_sprites)
+    local before_enhancements, after_enhancements = 0, 0
+
+    if G.STAGE == G.STAGES.RUN and G.playing_cards then
+        for _, v in pairs(G.playing_cards) do
+            if v.config.center ~= G.P_CENTERS.c_base then
+                before_enhancements = before_enhancements + 1
+            end
+        end
+    end
+
     set_ability_ref(self, center, initial, delay_sprites)
 
     if self.ability.set == "Cine" and self.config.center.reward then
@@ -1685,7 +1706,15 @@ function Card:set_ability(center, initial, delay_sprites)
         end
     end
 
-    if G.cine_quests and not initial and center.set == "Enhanced" then
+    if G.STAGE == G.STAGES.RUN and G.playing_cards then
+        for _, v in pairs(G.playing_cards) do
+            if v.config.center ~= G.P_CENTERS.c_base then
+                after_enhancements = after_enhancements + 1
+            end
+        end
+    end
+
+    if G.cine_quests and not initial and center.set == "Enhanced" and before_enhancements < after_enhancements then
         G.E_MANAGER:add_event(Event({
             func = function()
                 for _, v in ipairs(G.cine_quests.cards) do
@@ -1968,7 +1997,7 @@ function set_card_back(card)
         card.children.back.states.drag = card.states.drag
         card.children.back.states.collide.can = false
         card.children.back:set_role({major = card, role_type = "Glued", draw_major = card})
-    elseif card.ability.set == "Booster" then
+    elseif card.ability.set == "Booster" or card.ability.set == "Booster_dx" then
         card.children.back.atlas = G.ASSET_ATLAS["cine_boosters"]
         card.children.back:set_sprite_pos(REVERIE_FLIPPED_BOOSTER_POS)
     end
