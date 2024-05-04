@@ -49,7 +49,7 @@ target = "main.lua"
 pattern = '''not c.ending_shop and not c.reroll_shop and not c.selling_card and not c.selling_self and not c.buying_card and'''
 position = "after"
 payload = '''
-not c.cine_progress and not c.joker_added and
+not c.cine_progress and not c.joker_added and not c.enhancing_card and not c.debuff_or_flipped_played and
 '''
 match_indent = true
 overwrite = false
