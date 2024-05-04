@@ -804,6 +804,25 @@ function create_card_for_shop(area)
 end
 
 function create_card_for_cine_shop(area)
+    local kinds, kind = get_used_cine_kinds(), nil
+
+    if G.GAME.starting_params.ksrgacha and (find_used_cine("Adrifting") or kinds) then
+        if kinds then
+            kind = pseudorandom_element(kinds, pseudoseed("cine_booster"))
+        end
+    
+        local center = kind and get_pack_by_slug("shop_pack", kind).key or get_pack("shop_pack").key
+    
+        local card = Card(area.T.x + area.T.w / 2, area.T.y,
+            G.CARD_W, G.CARD_H, G.P_CARDS.empty, G.P_CENTERS[center], {
+                bypass_discovery_center = true,
+                bypass_discovery_ui = true
+            })
+        create_shop_card_ui(card, "Booster", area)
+    
+        return card
+    end
+
     local forced_tag = nil
     local is_forcing_card_set = is_cine_forcing_card_set()
 
