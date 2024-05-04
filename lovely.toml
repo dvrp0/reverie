@@ -229,16 +229,7 @@ target = "functions/button_callbacks.lua"
 pattern = '''G.shop:remove()'''
 position = "before"
 payload = '''
-if G.GAME.cached_oddity_rate then
-    G.GAME.oddity_rate = G.GAME.cached_oddity_rate
-end
-
-if G.GAME.cached_alchemical_rate then
-    G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
-end
-
-G.GAME.current_round.used_cine = nil
-set_cine_banned_keys()'''
+end_cine_shop()'''
 match_indent = true
 overwrite = false
 

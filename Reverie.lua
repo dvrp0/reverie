@@ -503,6 +503,20 @@ function create_UIBox_your_collection_cines()
     return t
 end
 
+function end_cine_shop()
+    if G.GAME.cached_oddity_rate then
+        G.GAME.oddity_rate = G.GAME.cached_oddity_rate
+    end
+    
+    if G.GAME.cached_alchemical_rate then
+        G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
+    end
+    
+    G.GAME.current_round.max_boosters = nil
+    G.GAME.current_round.used_cine = nil
+    set_cine_banned_keys()
+end
+
 function create_tag_as_card(area, big, excludes)
     local _pool, _pool_key = get_current_pool("Tag", nil, nil, nil)
     local key = pseudorandom_element(_pool, pseudoseed(_pool_key))
@@ -1013,6 +1027,10 @@ function CardArea:emplace(card, location, stay_flipped)
     set_card_back(card)
     emplace_ref(self, card, location, stay_flipped)
 
+    if card.ability.booster_pos then
+        G.GAME.current_round.max_boosters = math.max(G.GAME.current_round.max_boosters or 0, card.ability.booster_pos)
+    end
+
     if self == G.shop_jokers or self == G.shop_vouchers or self == G.shop_booster or self == G.pack_cards then
         local unseen, heist = find_used_cine("The Unseen"), find_used_cine("Gem Heist")
 
@@ -1236,7 +1254,9 @@ function Card:use_consumeable(area, copier)
                         local c = G.shop_booster:remove_card(G.shop_booster.cards[i])
                         c:remove()
                         c = nil
+                    end
 
+                    for i = 1, G.GAME.current_round.max_boosters do
                         local card = nil
 
                         if kinds then
