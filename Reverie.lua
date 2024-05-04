@@ -555,14 +555,20 @@ end
 
 function create_crazy_random_card(area, excludes)
     local cumulative, pointer, target, card = 0, 0, nil, nil
-
-    for _, v in pairs(G.P_CENTERS.p_crazy_lucky_1.config.weights) do
-        cumulative = cumulative + v
-    end
-
-    local poll = pseudorandom(pseudoseed("crazy_pack"..G.GAME.round_resets.ante)) * cumulative
+    local tag_or_die = find_used_cine("Tag or Die")
+    local weights = {}
 
     for k, v in pairs(G.P_CENTERS.p_crazy_lucky_1.config.weights) do
+        weights[k] = v * (k == "Tag" and tag_or_die and 5 or 1)
+    end
+
+    for _, v in pairs(weights) do
+        cumulative = cumulative + v
+    end
+    
+    local poll = pseudorandom(pseudoseed("crazy_pack"..G.GAME.round_resets.ante)) * cumulative
+    
+    for k, v in pairs(weights) do
         pointer = pointer + v
 
         if pointer >= poll and pointer - v <= poll then
@@ -632,6 +638,10 @@ function create_crazy_random_card(area, excludes)
         end
     elseif target == "Tag" then
         card = create_tag_as_card(area, true, excludes)
+    end
+
+    if not card then
+        card = create_card("Joker", area, nil, nil, true, true, nil, "crazy_j")
     end
 
     return card
