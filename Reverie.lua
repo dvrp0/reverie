@@ -56,7 +56,7 @@ end
 function SMODS.INIT.Reverie()
     local mod = SMODS.findModByID("Reverie")
     local cine_color = HEX("9db95f")
-    local jokers, boosters, cines, tags, backs = nil, nil, nil, nil, nil
+    local jokers, boosters, cines, tags, backs, spectrals = nil, nil, nil, nil, nil, nil
 
     SMODS.Sprite:new("Cine", mod.path, "cines.png", 71, 95, "asset_atli"):register()
     SMODS.Sprite:new("cine_jokers", mod.path, "jokers.png", 71, 95, "asset_atli"):register()
@@ -201,12 +201,26 @@ function SMODS.INIT.Reverie()
         end
     end
 
+    local function inject_spectrals()
+        spectrals = NFS.load(mod.path.."/data/spectrals.lua")()
+
+        for _, v in ipairs(spectrals) do
+            local slug = "c_"..v.slug
+
+            SMODS.Spectral:new(v.name, v.slug, v.config, v.pos, REVERIE_LANG.descriptions.Spectral[slug], v.cost, true, v.discovered, "Cine"):register()
+
+            SMODS.Spectrals[slug].can_use = v.can_use
+            SMODS.Spectrals[slug].use = v.use
+        end
+    end
+
     apply_localization()
     inject_jokers()
     inject_boosters()
     inject_cines()
     inject_tags()
     inject_backs()
+    inject_spectrals()
 
     SMODS.SAVE_UNLOCKS()
 
@@ -220,6 +234,7 @@ function SMODS.INIT.Reverie()
         inject_cines()
         inject_tags()
         inject_backs()
+        inject_spectrals()
 
         SMODS.SAVE_UNLOCKS()
     end
@@ -308,7 +323,7 @@ function set_discover_tallies()
     }
 
     for _, v in pairs(G.P_CENTERS) do
-        if not v.omit and v.set and (v.set == "Cine" or v.set == "Cine_Quest") then
+        if not v.omit and v.set and v.set == "Cine" then
             G.DISCOVER_TALLIES.cines.of = G.DISCOVER_TALLIES.cines.of + 1
 
             if v.discovered then
@@ -507,11 +522,11 @@ function end_cine_shop()
     if G.GAME.cached_oddity_rate then
         G.GAME.oddity_rate = G.GAME.cached_oddity_rate
     end
-    
+
     if G.GAME.cached_alchemical_rate then
         G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
     end
-    
+
     G.GAME.current_round.max_boosters = nil
     G.GAME.current_round.used_cine = nil
     set_cine_banned_keys()
@@ -579,9 +594,9 @@ function create_crazy_random_card(area, excludes)
     for _, v in pairs(weights) do
         cumulative = cumulative + v
     end
-    
+
     local poll = pseudorandom(pseudoseed("crazy_pack"..G.GAME.round_resets.ante)) * cumulative
-    
+
     for k, v in pairs(weights) do
         pointer = pointer + v
 
@@ -592,7 +607,7 @@ function create_crazy_random_card(area, excludes)
     end
 
     if target == "Joker" then
-        local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape")
+        local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape") and G.jokers.cards
 
         if morsel or i_sing then
             if morsel and not i_sing then
@@ -732,6 +747,10 @@ function create_morsel_card(area)
     return card
 end
 
+function is_cine_or_reverie(card)
+    return card.ability.set == "Cine" or (card.ability.set == "Spectral" and card.ability.name == "Reverie")
+end
+
 function find_used_cine(name)
     return G.GAME.current_round.used_cine and get_index(G.GAME.current_round.used_cine, name) or nil
 end
@@ -775,6 +794,10 @@ end
 function get_used_cine_kinds()
     if not G.GAME.current_round.used_cine then
         return nil
+    elseif find_used_cine("Crazy Lucky") then
+        return {
+            "p_crazy_lucky"
+        }
     end
 
     local flag, kinds = {}, {}
@@ -808,6 +831,20 @@ function find_cine_center(name)
     return nil
 end
 
+local create_card_ref = create_card
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    if not forced_key and soulable and (not G.GAME.banned_keys["c_soul"]) then
+        if (_type == "Cine" or _type == "Cine_Quest" or _type == "Spectral") and
+        not (G.GAME.used_jokers["c_reverie"] and not next(find_joker("Showman"))) then
+            if pseudorandom("soul_".._type..G.GAME.round_resets.ante) > 0.997 then
+                forced_key = "c_reverie"
+            end
+        end
+    end
+
+    return create_card_ref(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+end
+
 local create_card_shop_ref = create_card_for_shop
 function create_card_for_shop(area)
     if G.GAME.current_round.used_cine then
@@ -818,22 +855,21 @@ function create_card_for_shop(area)
 end
 
 function create_card_for_cine_shop(area)
-    local kinds, kind = get_used_cine_kinds(), nil
-
     if G.GAME.starting_params.ksrgacha and (find_used_cine("Adrifting") or kinds) then
+        local kinds, kind = get_used_cine_kinds(), nil
+
         if kinds then
             kind = pseudorandom_element(kinds, pseudoseed("cine_booster"))
         end
-    
+
         local center = kind and get_pack_by_slug("shop_pack", kind).key or get_pack("shop_pack").key
-    
         local card = Card(area.T.x + area.T.w / 2, area.T.y,
             G.CARD_W, G.CARD_H, G.P_CARDS.empty, G.P_CENTERS[center], {
                 bypass_discovery_center = true,
                 bypass_discovery_ui = true
             })
         create_shop_card_ui(card, "Booster", area)
-    
+
         return card
     end
 
@@ -952,8 +988,8 @@ function create_card_for_cine_shop(area)
             local card = nil
 
             if v.type == "Joker" then
-                local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape")
-        
+                local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape") and G.jokers.cards
+
                 if morsel or i_sing then
                     if morsel and not i_sing then
                         card = create_morsel_card(area)
@@ -1113,7 +1149,7 @@ function set_cine_banned_keys()
         if (v.yes_pool_flag == "Tag or Die" and G.GAME.selected_back.name ~= "") or v.yes_pool_flag == "Crazy Lucky" then
             flag = not find_used_cine(v.yes_pool_flag)
         end
-        
+
         G.GAME.banned_keys[k] = flag or nil
     end
 end
@@ -1124,10 +1160,6 @@ function get_pack(_key, _type)
 
     -- For the compatibility with Betmma's Vouchers
     if not _type and G.GAME.current_round.used_cine then
-        if find_used_cine("Crazy Lucky") and pack.kind ~= "Crazy" then
-            return get_pack_by_slug(_key, "p_crazy_lucky")
-        end
-
         local kinds = get_used_cine_kinds()
 
         if kinds then
@@ -1194,7 +1226,9 @@ end
 
 local use_consumeable_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
-    if self.ability.set == "Cine" then
+    if is_cine_or_reverie(self) then
+        local is_reverie = self.ability.name == "Reverie"
+
         if not G.GAME.current_round.used_cine then
             G.GAME.current_round.used_cine = {}
         end
@@ -1202,15 +1236,25 @@ function Card:use_consumeable(area, copier)
         G.E_MANAGER:add_event(Event({
             trigger = "immediate",
             func = function()
-                if G.GAME.selected_back.name == "Filmstrip Deck" then
+                if is_reverie then
+                    for _, v in pairs(G.P_CENTERS) do
+                        if v.set == "Cine" and v.name ~= "Let It Moon" then
+                            table.insert(G.GAME.current_round.used_cine, v.name)
+                        end
+                    end
+
+                    -- For prioritizing X0.5 reroll cost over The Unseen/I've No Shape
+                    table.insert(G.GAME.current_round.used_cine, "Let It Moon")
+                elseif G.GAME.selected_back.name == "Filmstrip Deck" then
                     table.insert(G.GAME.current_round.used_cine, self.ability.name)
-                else
+                elseif not find_used_cine(self.ability.name) then
                     G.GAME.current_round.used_cine = {
                         self.ability.name
                     }
                 end
 
-                if self.ability.name == "I Sing, I've No Shape" or self.ability.name == "The Unseen" or self.ability.name == "Let It Moon" then
+                if is_reverie or self.ability.name == "I Sing, I've No Shape" or self.ability.name == "The Unseen"
+                or self.ability.name == "Let It Moon" then
                     calculate_reroll_cost(true)
                 end
 
@@ -1238,7 +1282,7 @@ function Card:use_consumeable(area, copier)
                     if self.ability.name == "Adrifting" then
                         v.cost = G.P_CENTERS.c_adrifting.config.extra
                         v:flip()
-                    elseif self.ability.name == "Crazy Lucky" then
+                    elseif is_reverie or self.ability.name == "Crazy Lucky" then
                         local c = G.shop_vouchers:remove_card(v)
                         c:remove()
                         c = nil
@@ -1663,13 +1707,15 @@ function Card:check_use()
 end
 
 function G.FUNCS.can_select_crazy_card(e)
+    local is_cine = is_cine_or_reverie(e.config.ref_table)
+
     if e.config.ref_table.ability.set ~= "Voucher" and -- Copy pasted from G.FUNCS.check_for_buy_space
     e.config.ref_table.ability.set ~= "Enhanced" and e.config.ref_table.ability.set ~= "Default" and
     not (e.config.ref_table.ability.set == "Joker" and #G.jokers.cards < G.jokers.config.card_limit +
         ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) and
-    not (e.config.ref_table.ability.consumeable and e.config.ref_table.ability.set ~= "Cine" and #G.consumeables.cards < G.consumeables.config.card_limit +
+    not (e.config.ref_table.ability.consumeable and not is_cine and #G.consumeables.cards < G.consumeables.config.card_limit +
         ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) and
-    not (e.config.ref_table.ability.set == "Cine" and #G.cine_quests.cards < G.cine_quests.config.card_limit +
+    not (is_cine and #G.cine_quests.cards < G.cine_quests.config.card_limit +
         ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) then
         e.config.colour = G.C.UI.BACKGROUND_INACTIVE
         e.config.button = nil
@@ -1683,7 +1729,7 @@ local can_select_card_ref = G.FUNCS.can_select_card
 function G.FUNCS.can_select_card(e)
     can_select_card_ref(e)
 
-    if e.config.ref_table.ability.set == "Cine" and not (e.config.ref_table.edition and e.config.ref_table.edition.negative)
+    if is_cine_or_reverie(e.config.ref_table) and not (e.config.ref_table.edition and e.config.ref_table.edition.negative)
     and #G.cine_quests.cards >= G.cine_quests.config.card_limit then
         e.config.colour = G.C.UI.BACKGROUND_INACTIVE
         e.config.button = nil
@@ -1694,8 +1740,7 @@ local use_and_sell_buttons_ref = G.UIDEF.use_and_sell_buttons
 function G.UIDEF.use_and_sell_buttons(card)
     local result = use_and_sell_buttons_ref(card)
 
-    if (find_used_cine("Crazy Lucky") or card.ability.set == "Cine")
-        and card.ability.consumeable and card.area and card.area == G.pack_cards then
+    if (find_used_cine("Crazy Lucky") or is_cine_or_reverie(card)) and card.ability.consumeable and card.area and card.area == G.pack_cards then
         return {
             n=G.UIT.ROOT, config = {padding = 0, colour = G.C.CLEAR}, nodes={
                 {n=G.UIT.R, config={ref_table = card, r = 0.08, padding = 0.1, align = "bm", minw = 0.5*card.T.w - 0.15, maxw = 0.9*card.T.w - 0.15, minh = 0.3*card.T.h, hover = true, shadow = true, colour = G.C.UI.BACKGROUND_INACTIVE, one_press = true, button = 'use_card', func = 'can_select_crazy_card'}, nodes={
@@ -1722,7 +1767,7 @@ function G.FUNCS.sell_card(e)
                         card = card
                     })
                 end
-    
+
                 return true
             end
         }))
@@ -1809,7 +1854,7 @@ function Card:calculate_joker(context)
                 add_tag(Tag("tag_double"))
                 play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
                 play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
-                
+
                 return true
             end)
         }))
@@ -1909,7 +1954,7 @@ local card_highlight_ref = Card.highlight
 function Card:highlight(is_higlighted)
     card_highlight_ref(self, is_higlighted)
 
-    if self.ability.set == "Cine" or (self.area and self.area == G.pack_cards) then
+    if is_cine_or_reverie(self) or (self.area and self.area == G.pack_cards) then
         if self.highlighted and self.area and self.area.config.type ~= 'shop' then
             local x_off = (self.ability.consumeable and -0.1 or 0)
             self.children.use_button = UIBox{

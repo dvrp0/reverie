@@ -197,9 +197,7 @@ pattern = '''if G.STATE == G.STATES.SELECTING_HAND or G.STATE == G.STATES.TAROT_
 position = "before"
 payload = '''
 if self.ability.set == "Cine" then
-    if G.GAME.used_vouchers.v_virtuoso and G.STATE == G.STATES.BLIND_SELECT then
-        return true
-    elseif self.config.center.reward then
+    if self.config.center.reward then
         return false
     elseif self.ability.name == "I Sing, I've No Shape" then
         return G.jokers.cards
@@ -408,7 +406,7 @@ target = "card.lua"
 pattern = '''card = create_card("Joker", G.pack_cards, nil, nil, true, true, nil, 'buf')'''
 position = "before"
 payload = '''
-local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape")
+local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape") and G.jokers.cards
 
 if morsel or i_sing then
     if morsel and not i_sing then
@@ -582,11 +580,22 @@ overwrite = false
 [[patches]]
 [patches.pattern]
 target = "functions/button_callbacks.lua"
+pattern = '''if card.area then card.area:remove_card(card) end'''
+position = "before"
+payload = '''
+local is_pack_card = card.area and card.area == G.pack_cards'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
 pattern = '''if card.ability.consumeable then'''
 position = "after"
 payload = '''
-if G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK then
-    (card.ability.set == "Cine" and G.cine_quests or G.consumeables):emplace(card)
+local is_cine = is_cine_or_reverie(card)
+if G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK or (is_pack_card and is_cine) then
+    (is_cine and G.cine_quests or G.consumeables):emplace(card)
     card:add_to_deck()
     play_sound('card1', 0.8, 0.6)
     play_sound('generic1')
@@ -767,7 +776,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+if is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit + 1
     if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
 
@@ -785,7 +794,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+if is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
     if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
 
@@ -814,7 +823,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if self.ability.set == "Cine" or self.ability.set == "Cine_Quest" then
+if is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
     goto reverie_queue_negative_removal_skip
 end
@@ -841,3 +850,16 @@ if G.GAME.current_round.used_cine then
 end
 
 '''
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''if v.name == 'Black Hole' or v.name == 'The Soul' then'''
+position = "before"
+payload = '''
+if v.set == "Spectral" and v.name == "Reverie" then
+    add = false
+end
+'''
+match_indent = true
+overwrite = false

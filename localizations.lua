@@ -240,6 +240,16 @@ return {
                 }
             }
         },
+        Spectral = {
+            c_reverie = {
+                name = "Reverie",
+                text = {
+                    "Applies every",
+                    "{C:cine,E:1}Cine cards",
+                    "to this shop"
+                }
+            }
+        },
         Other = {
             p_tag_normal = {
                 name = "Tag Pack",
@@ -553,6 +563,16 @@ return {
                 text = {
                     "무료 {C:attention}점보 태그 팩{}을",
                     "획득합니다"
+                }
+            }
+        },
+        Spectral = {
+            c_reverie = {
+                name = "몽상",
+                text = {
+                    "이번 상점에",
+                    "모든 {C:cine,E:1}영화 카드{}를",
+                    "적용합니다"
                 }
             }
         },
