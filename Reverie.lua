@@ -612,7 +612,7 @@ function create_crazy_random_card(area, excludes)
         if find_used_cine("Morsel") then
             table.insert(cine_joker_types, "Morsel")
         end
-        if find_used_cine("I Sing, I've No Shape") and G.jokers.cards then
+        if find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
             table.insert(cine_joker_types, "I Sing, I've No Shape")
         end
 
@@ -998,7 +998,7 @@ function create_card_for_cine_shop(area)
                 if find_used_cine("Morsel") then
                     table.insert(cine_joker_types, "Morsel")
                 end
-                if find_used_cine("I Sing, I've No Shape") and G.jokers.cards then
+                if find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
                     table.insert(cine_joker_types, "I Sing, I've No Shape")
                 end
 
