@@ -130,8 +130,7 @@ return {
         name = "Tag or Die",
         config = {
             extra = {
-                cost = 7,
-                mult = 1.5,
+                cost = 8,
                 kind = {
                     "p_tag_"
                 }
@@ -149,7 +148,7 @@ return {
         name = "Tag or Die Exchange Coupon",
         reward = "c_tag_or_die",
         config = {
-            extra = 3
+            extra = 4
         },
         cost = 4,
         pos = {
