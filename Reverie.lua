@@ -860,9 +860,9 @@ function create_card_for_shop(area)
 end
 
 function create_card_for_cine_shop(area)
-    if G.GAME.starting_params.ksrgacha and (find_used_cine("Adrifting") or kinds) then
-        local kinds, kind = get_used_cine_kinds(), nil
+    local kinds, kind = get_used_cine_kinds(), nil
 
+    if G.GAME.starting_params.ksrgacha and (find_used_cine("Adrifting") or kinds) then
         if kinds then
             kind = pseudorandom_element(kinds, pseudoseed("cine_booster"))
         end
