@@ -1685,6 +1685,19 @@ function Tag:apply_to_run(_context)
     return tag_apply_to_run_ref(self, _context)
 end
 
+local update_shop_ref = Game.update_shop
+function Game:update_shop(dt)
+    update_shop_ref(self, dt)
+
+    if G.STATE_COMPLETE then
+        for _, v in ipairs(G.GAME.tags) do
+            v:apply_to_run({
+                type = "immediate"
+            })
+        end
+    end
+end
+
 local back_apply_to_run_ref = Back.apply_to_run
 function Back:apply_to_run()
     back_apply_to_run_ref(self)

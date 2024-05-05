@@ -281,7 +281,7 @@ match_indent = true
 overwrite = true
 
 # When Tags are purchased, properly add them to the game and remove from the shop
-# If their abilitys are okay to be activated immediately, do so
+# Applying immediate tags is handled in injected update_shop()
 [[patches]]
 [patches.pattern]
 target = "functions/button_callbacks.lua"
@@ -294,10 +294,6 @@ elseif c1.ability.set == "Tag" then
 
     play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
     play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
-
-    for _, v in ipairs(G.GAME.tags) do
-        v:apply_to_run({type = "immediate"})
-    end
 '''
 match_indent = true
 overwrite = false
