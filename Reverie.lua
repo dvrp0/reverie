@@ -2108,12 +2108,23 @@ end
 
 local card_load_ref = Card.load
 function Card:load(cardTable, other_card)
+    if cardTable.label == "Tag" then
+        G.P_CENTERS[cardTable.save_fields.center] = G.P_TAGS[cardTable.save_fields.center]
+    end
+
     card_load_ref(self, cardTable, other_card)
 
-    if cardTable.ability.tag then
+    if cardTable.label == "Tag" then
+        G.P_CENTERS[cardTable.save_fields.center] = nil
+
+        self.T.h = 0.8
+        self.T.w = 0.8
+        self.VT.h = self.T.H
+        self.VT.w = self.T.w
+
         self.ability.tag = Tag(self.config.center_key)
         self.ability.tag.ability.as_card = true
-
+    
         if self.ability.name == "Orbital Tag" then
             self.ability.tag.ability.orbital_hand = self.ability.orbital
         end
