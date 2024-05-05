@@ -84,7 +84,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_jokers()
-        jokers = NFS.load(mod.path.."jokers.lua")()
+        jokers = NFS.load(mod.path.."/data/jokers.lua")()
 
         for _, v in ipairs(jokers) do
             local slug = "j_"..v.slug
@@ -98,7 +98,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_boosters()
-        boosters = NFS.load(mod.path.."boosters.lua")()
+        boosters = NFS.load(mod.path.."/data/boosters.lua")()
 
         local states = table_length(G.STATES)
         G.STATES.TAG_PACK = states + 1
@@ -123,7 +123,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_cines()
-        cines = NFS.load(mod.path.."cines.lua")()
+        cines = NFS.load(mod.path.."/data/cines.lua")()
 
         G.P_CENTER_POOLS.Cine = {}
         G.P_CENTER_POOLS.Cine_Quest = {}
@@ -142,12 +142,12 @@ function SMODS.INIT.Reverie()
             config = {}
         }
 
-        local shader_files = love.filesystem.getDirectoryItems(mod.path)
+        local shader_files = love.filesystem.getDirectoryItems(mod.path.."/assets/shaders")
         for _, filename in ipairs(shader_files) do
             local extension = string.sub(filename, -3)
             if extension == ".fs" then
                 local shader_name = string.sub(filename, 1, -4)
-                G.SHADERS[shader_name] = love.graphics.newShader(mod.path..filename)
+                G.SHADERS[shader_name] = love.graphics.newShader(mod.path.."/assets/shaders/"..filename)
             end
         end
 
@@ -171,7 +171,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_tags()
-        tags = NFS.load(mod.path.."tags.lua")()
+        tags = NFS.load(mod.path.."/data/tags.lua")()
 
         local tags_length = table_length(G.P_CENTER_POOLS.Tag)
         for k, v in pairs(tags) do
@@ -191,7 +191,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_backs()
-        backs = NFS.load(mod.path.."backs.lua")()
+        backs = NFS.load(mod.path.."/data/backs.lua")()
 
         for _, v in ipairs(backs) do
             local slug = "b_"..v.slug

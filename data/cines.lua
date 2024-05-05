@@ -213,7 +213,7 @@ return {
         name = "Poker Face Exchange Coupon",
         reward = "c_poker_face",
         config = {
-            extra = 10
+            extra = 8
         },
         cost = 4,
         pos = {
@@ -244,7 +244,7 @@ return {
         name = "Eerie Inn Exchange Coupon",
         reward = "c_eerie_inn",
         config = {
-            extra = 3
+            extra = 6
         },
         cost = 4,
         pos = {
