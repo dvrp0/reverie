@@ -1,5 +1,5 @@
 local function calculate_dynamic_film(self, context)
-    if context.cine_progress then
+    if context.cine_progress and not context.blueprint then
         self.ability.extra.chips = self.ability.extra.chips + self.ability.extra.chip_mod
 
         card_eval_status_text(self, "extra", nil, nil, nil, {
