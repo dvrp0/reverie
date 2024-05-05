@@ -1544,6 +1544,19 @@ function Game:update_crazy_pack(dt)
         G.E_MANAGER:add_event(Event({
             trigger = 'immediate',
             func = function()
+                G.booster_pack_sparkles = Particles(1, 1, 0, 0, {
+                    timer = 0.05,
+                    scale = 0.1,
+                    initialize = true,
+                    lifespan = 2.5,
+                    speed = 0.7,
+                    padding = -3,
+                    attach = G.ROOM_ATTACH,
+                    colours = {G.C.WHITE, lighten(G.C.SECONDARY_SET.Cine, 0.4), lighten(G.C.RED, 0.2)},
+                    fill = true
+                })
+                G.booster_pack_sparkles.fade_alpha = 1
+                G.booster_pack_sparkles:fade(1, 0)
                 G.booster_pack = UIBox{
                     definition = create_UIBox_crazy_pack(),
                     config = {align="tmi", offset = {x=0,y=G.ROOM.T.y + 9},major = G.hand, bond = 'Weak'}
@@ -1580,6 +1593,15 @@ function Game:update_film_pack(dt)
         G.E_MANAGER:add_event(Event({
             trigger = 'immediate',
             func = function()
+                G.booster_pack_meteors = Particles(1, 1, 0, 0, {
+                    timer = 0.035,
+                    scale = 0.1,
+                    lifespan = 1.5,
+                    speed = 4,
+                    attach = G.ROOM_ATTACH,
+                    colours = {lighten(G.C.SECONDARY_SET.Cine, 0.2), G.C.WHITE},
+                    fill = true
+                })
                 G.booster_pack = UIBox{
                     definition = create_UIBox_film_pack(),
                     config = {align="tmi", offset = {x=0,y=G.ROOM.T.y + 9},major = G.hand, bond = 'Weak'}
