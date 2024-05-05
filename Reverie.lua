@@ -1896,7 +1896,7 @@ function progress_cine_quest(card)
                     func = function()
                         G.GAME.used_jokers[card.config.center_key] = nil
                         card.config.card = {}
-                        card:set_ability(G.P_CENTERS[card.config.center.reward])
+                        card:set_ability(G.P_CENTERS[card.config.center.reward], true)
 
                         if not card.config.center.discovered then
                             discover_card(card.config.center)
