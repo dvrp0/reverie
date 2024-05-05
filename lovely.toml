@@ -101,7 +101,7 @@ elseif _c.set == "Cine" then
     else
         if _c.name == "Tag or Die" then
             loc_vars = {_c.config.extra.cost}
-        elseif _c.name == "I Sing, I've No Shape" or _c.name == "The Unseen" or _c.name == "Let It Moon" then
+        elseif _c.name == "I Sing, I've No Shape" or _c.name == "The Unseen" or _c.name == "Let It Moon" or _c.name == "Eerie Inn" then
             loc_vars = {_c.config.extra.mult}
         elseif _c.name == "Crazy Lucky" then
             info_queue[#info_queue+1] = G.P_CENTERS.p_crazy_lucky_1
@@ -865,6 +865,20 @@ position = "before"
 payload = '''
 if v.set == "Spectral" and v.name == "Reverie" then
     add = false
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''local _pool, _pool_key = get_current_pool(_type, _rarity, legendary, key_append)'''
+position = "after"
+payload = '''
+local reverie_index = get_index(_pool, "c_reverie")
+if reverie_index then
+    table.remove(_pool, reverie_index)
 end
 '''
 match_indent = true

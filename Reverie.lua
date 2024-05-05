@@ -841,7 +841,7 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
     if not forced_key and soulable and (not G.GAME.banned_keys["c_soul"]) then
         if (_type == "Cine" or _type == "Cine_Quest" or _type == "Spectral") and
         not (G.GAME.used_jokers["c_reverie"] and not next(find_joker("Showman"))) then
-            if pseudorandom("soul_".._type..G.GAME.round_resets.ante) > 0.997 then
+            if pseudorandom("reverie_".._type..G.GAME.round_resets.ante) > 0.997 then
                 forced_key = "c_reverie"
             end
         end
@@ -1011,28 +1011,24 @@ function create_card_for_cine_shop(area)
                         card = create_i_sing_card(area)
                     end
                 end
-            elseif v.type == "Enhanced" or v.type == "Base" then
-                if find_used_cine("Poker Face") then
-                    card = create_poker_face_card(area)
-                end
+            elseif find_used_cine("Poker Face") and (v.type == "Enhanced" or v.type == "Base") then
+                card = create_poker_face_card(area)
+            elseif find_used_cine("Eerie Inn") and v.type == "Spectral" then
+                local poll = pseudorandom("cine_spectral_grade")
+                local grade = poll >= 0.93 and "mega" or poll >= 0.63 and "jumbo" or "normal"
+                local index = grade == "normal" and math.random(1, 2) or 1
+
+                card = create_booster(area, G.P_CENTERS["p_spectral_"..grade.."_"..index])
             elseif v.type == "Tag" then
                 card = create_tag_as_card(area)
             elseif v.type == "Crazy" then
                 card = create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
             end
 
-            -- Excluding Reverie from get_current_pool with Lovely is kinda jankcy as Codex overrides it
-            -- Temporarily banning it
-            local reverie_ban_cached = G.GAME.banned_keys["c_reverie"]
-            if v.type == "Spectral" then
-                G.GAME.banned_keys["c_reverie"] = true
-            end
-
             if not card then
                 card = create_card(v.type, area, nil, nil, nil, nil, nil, "sho")
             end
 
-            G.GAME.banned_keys["c_reverie"] = reverie_ban_cached
             create_shop_card_ui(card, v.type, area)
 
             if find_used_cine("Adrifting") and #G.GAME.current_round.used_cine == 1 then
@@ -1130,11 +1126,12 @@ local calculate_reroll_cost_ref = calculate_reroll_cost
 function calculate_reroll_cost(skip_increment)
     calculate_reroll_cost_ref(skip_increment)
 
-    if find_used_cine_or("I Sing, I've No Shape", "The Unseen", "Let It Moon") then
+    if find_used_cine_or("I Sing, I've No Shape", "The Unseen", "Let It Moon", "Eerie Inn") then
         local cines = {
             find_used_cine("I Sing, I've No Shape") or -999,
             find_used_cine("The Unseen") or -999,
-            find_used_cine("Let It Moon") or -999
+            find_used_cine("Let It Moon") or -999,
+            find_used_cine("Eerie Inn") or -999
         }
         table.sort(cines)
 
@@ -1255,7 +1252,7 @@ function Card:use_consumeable(area, copier)
                 end
 
                 if is_reverie or self.ability.name == "I Sing, I've No Shape" or self.ability.name == "The Unseen"
-                or self.ability.name == "Let It Moon" then
+                or self.ability.name == "Let It Moon" or self.ability.name == "Eerie Inn" then
                     calculate_reroll_cost(true)
                 end
 

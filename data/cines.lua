@@ -227,6 +227,7 @@ return {
         name = "Eerie Inn",
         config = {
             extra = {
+                mult = 2,
                 kind = {
                     "p_spectral_"
                 }

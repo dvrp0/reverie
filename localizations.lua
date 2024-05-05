@@ -130,8 +130,7 @@ return {
                 name = "Exchange Coupon",
                 text = {
                     "Converts to {C:cine}Eerie Inn{}",
-                    "after destroying",
-                    "{C:attention}#1#{} cards",
+                    "after destroying {C:attention}#1#{} cards",
                     "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
                 }
             },
@@ -139,8 +138,9 @@ return {
                 name = "Eerie Inn",
                 text = {
                     "During this shop,",
-                    "only {C:spectral}Spectral",
-                    "cards appear",
+                    "only {C:spectral}Spectral Packs",
+                    "appear",
+                    "{C:red}X#1#{} reroll cost",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
             },
@@ -469,7 +469,8 @@ return {
                 name = "오싹한 여관",
                 text = {
                     "이번 상점 동안에는",
-                    "{C:spectral}유령{} 카드만 나타납니다",
+                    "{C:spectral}유령 팩{}만 나타납니다",
+                    "새로고침 비용 {C:red}#1#{}배",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             },
