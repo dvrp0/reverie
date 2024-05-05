@@ -1069,37 +1069,20 @@ function CardArea:emplace(card, location, stay_flipped)
 
     if self == G.shop_jokers or self == G.shop_vouchers or self == G.shop_booster or self == G.pack_cards then
         local unseen, heist = find_used_cine("The Unseen"), find_used_cine("Gem Heist")
+        local is_dx_tarot_planet = SMODS.findModByID("JeffDeluxeConsumablesPack") and (card.ability.set == "Planet" or card.ability.set == "Planet_dx")
+        local editions = {}
 
-        if card.ability.set == "Joker" then
-            if unseen and not heist then
-                card:set_edition({
-                    negative = true
-                })
-            elseif heist and not unseen then
-                card:set_edition({
-                    polychrome = true
-                })
-            elseif unseen and heist then
-                local edition = {}
-                local target = pseudorandom_element({
-                    "negative",
-                    "polychrome"
-                }, pseudoseed("cine_edition"))
-                edition[target] = true
-
-                card:set_edition(edition)
-            end
+        if heist and (card.ability.set == "Joker" or is_dx_tarot_planet or card.ability.set == "Base" or card.ability.set == "Enhanced") then
+            table.insert(editions, "polychrome")
+        end
+        if unseen and (card.ability.set == "Joker" or card.ability.consumeable) then
+            table.insert(editions, "negative")
         end
 
-        if unseen and card.ability.consumeable then
+        if #editions > 0 then
+            local edition = pseudorandom_element(editions, pseudoseed("edition"))
             card:set_edition({
-                negative = true
-            })
-        end
-
-        if heist and (card.ability.set == "Default" or card.ability.set == "Enhanced") then
-            card:set_edition({
-                polychrome = true
+                [edition] = true
             })
         end
 
