@@ -1931,11 +1931,7 @@ end
 
 local skip_blind_ref = G.FUNCS.skip_blind
 function G.FUNCS.skip_blind(e)
-    local tag = e.UIBox:get_UIE_by_ID("tag_container")
-
-    skip_blind_ref(e)
-
-    if G.cine_quests and tag then
+    if G.cine_quests and e.UIBox:get_UIE_by_ID("tag_container") then
         G.E_MANAGER:add_event(Event({
             func = function()
                 for _, v in ipairs(G.cine_quests.cards) do
@@ -1948,6 +1944,8 @@ function G.FUNCS.skip_blind(e)
             end
         }))
     end
+
+    skip_blind_ref(e)
 end
 
 local use_card_ref = G.FUNCS.use_card
