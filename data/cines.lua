@@ -244,7 +244,7 @@ return {
         name = "Eerie Inn Exchange Coupon",
         reward = "c_eerie_inn",
         config = {
-            extra = 6
+            extra = 5
         },
         cost = 4,
         pos = {

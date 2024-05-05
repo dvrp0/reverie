@@ -1021,10 +1021,18 @@ function create_card_for_cine_shop(area)
                 card = create_crazy_booster(area)
             end
 
+            -- Excluding Reverie from get_current_pool with Lovely is kinda jankcy as Codex overrides it
+            -- Temporarily banning it
+            local reverie_ban_cached = G.GAME.banned_keys["c_reverie"]
+            if v.type == "Spectral" then
+                G.GAME.banned_keys["c_reverie"] = true
+            end
+
             if not card then
                 card = create_card(v.type, area, nil, nil, nil, nil, nil, "sho")
             end
 
+            G.GAME.banned_keys["c_reverie"] = reverie_ban_cached
             create_shop_card_ui(card, v.type, area)
 
             if find_used_cine("Adrifting") and #G.GAME.current_round.used_cine == 1 then
@@ -1834,7 +1842,7 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_let_it_moon" and context.using_consumeable
             and (context.consumeable.ability.set == "Tarot" or context.consumeable.ability.set == "Planet"))
         or (self.config.center.reward == "c_poker_face" and context.enhancing_card)
-        or (self.config.center.reward == "c_eerie_inn" and context.using_consumeable and context.consumeable.ability.set == "Spectral")
+        or (self.config.center.reward == "c_eerie_inn" and context.any_card_destroyed)
         or (self.config.center.reward == "c_adrifting" and context.debuff_or_flipped_played)
         or (self.config.center.reward == "c_morsel" and context.joker_added and is_food_joker(context.card.config.center_key)) then
             return progress_cine_quest(self)
@@ -2038,6 +2046,24 @@ function Card:add_to_deck(from_debuff)
                 joker_added = true,
                 card = self
             })
+        end
+    end
+end
+
+local remove_from_deck_ref = Card.remove_from_deck
+function Card:remove_from_deck(from_debuff)
+    local flag = (self.added_to_deck and not self.ability.consumable_used and not self.ability.sold) or (G.playing_cards and self.playing_card) and G.jokers
+
+    remove_from_deck_ref(self, from_debuff)
+
+    if G.cine_quests and flag then
+        for _, v in ipairs(G.cine_quests.cards) do
+            if v ~= self then
+                v:calculate_joker({
+                    any_card_destroyed = true,
+                    card = self
+                })
+            end
         end
     end
 end

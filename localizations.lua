@@ -130,8 +130,8 @@ return {
                 name = "Exchange Coupon",
                 text = {
                     "Converts to {C:cine}Eerie Inn{}",
-                    "after using {C:attention}#1#",
-                    "{C:spectral}Spectral{} cards",
+                    "after destroying",
+                    "{C:attention}#1#{} cards",
                     "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
                 }
             },
@@ -460,7 +460,7 @@ return {
             c_eerie_inn_quest = {
                 name = "교환권",
                 text = {
-                    "{C:spectral}유령{} 카드를 {C:attention}#1#{}장 사용하면",
+                    "카드를 {C:attention}#1#{}장 파괴하면",
                     "{C:cine}오싹한 여관{}으로 바뀝니다",
                     "{C:inactive}(현재 {C:attention}#2#{C:inactive}/#1#)"
                 }
