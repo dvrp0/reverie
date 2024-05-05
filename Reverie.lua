@@ -572,8 +572,8 @@ function create_tag_as_card(area, big, excludes)
     return card
 end
 
-function create_crazy_booster(area)
-    local card = Card(area.T.x + area.T.w / 2, area.T.y, G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, G.P_CENTERS.p_crazy_lucky_1, {
+function create_booster(area, center)
+    local card = Card(area.T.x + area.T.w / 2, area.T.y, G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, center, {
         bypass_discovery_center = true,
         bypass_discovery_ui = true
     })
@@ -1018,7 +1018,7 @@ function create_card_for_cine_shop(area)
             elseif v.type == "Tag" then
                 card = create_tag_as_card(area)
             elseif v.type == "Crazy" then
-                card = create_crazy_booster(area)
+                card = create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
             end
 
             -- Excluding Reverie from get_current_pool with Lovely is kinda jankcy as Codex overrides it
@@ -1120,7 +1120,7 @@ function CardArea:emplace(card, location, stay_flipped)
             c:remove()
             c = nil
 
-            card = create_crazy_booster(self)
+            card = create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
             emplace_ref(self, card, location, stay_flipped)
         end
     end
@@ -1314,14 +1314,9 @@ function Card:use_consumeable(area, copier)
                         end
 
                         if G.GAME.current_round.used_packs[i] ~= "USED" then
-                            card = Card(G.shop_booster.T.x + G.shop_booster.T.w / 2, G.shop_booster.T.y,
-                                G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, G.P_CENTERS[G.GAME.current_round.used_packs[i]], {
-                                    bypass_discovery_center = true,
-                                    bypass_discovery_ui = true
-                                })
+                            card = create_booster(G.shop_booster, G.P_CENTERS[G.GAME.current_round.used_packs[i]])
                         end
 
-                        create_shop_card_ui(card, "Booster", G.shop_booster)
                         card.ability.booster_pos = i
                         card:start_materialize()
                         G.shop_booster:emplace(card)
