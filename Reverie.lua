@@ -607,16 +607,21 @@ function create_crazy_random_card(area, excludes)
     end
 
     if target == "Joker" then
-        local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape") and G.jokers.cards
+        local cine_joker_types = {}
 
-        if morsel or i_sing then
-            if morsel and not i_sing then
+        if find_used_cine("Morsel") then
+            table.insert(cine_joker_types, "Morsel")
+        end
+        if find_used_cine("I Sing, I've No Shape") and G.jokers.cards then
+            table.insert(cine_joker_types, "I Sing, I've No Shape")
+        end
+
+        if #cine_joker_types > 0 then
+            local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
+
+            if type == "Morsel" then
                 card = create_morsel_card(G.pack_cards)
-            elseif i_sing and not morsel then
-                card = create_i_sing_card(G.pack_cards)
-            elseif pseudorandom("cine_joker") >= 0.5 then
-                card = create_morsel_card(G.pack_cards)
-            else
+            elseif type == "I Sing, I've No Shape" then
                 card = create_i_sing_card(G.pack_cards)
             end
         else
@@ -988,16 +993,21 @@ function create_card_for_cine_shop(area)
             local card = nil
 
             if v.type == "Joker" then
-                local morsel, i_sing = find_used_cine("Morsel"), find_used_cine("I Sing, I've No Shape") and G.jokers.cards
+                local cine_joker_types = {}
 
-                if morsel or i_sing then
-                    if morsel and not i_sing then
+                if find_used_cine("Morsel") then
+                    table.insert(cine_joker_types, "Morsel")
+                end
+                if find_used_cine("I Sing, I've No Shape") and G.jokers.cards then
+                    table.insert(cine_joker_types, "I Sing, I've No Shape")
+                end
+
+                if #cine_joker_types > 0 then
+                    local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
+
+                    if type == "Morsel" then
                         card = create_morsel_card(area)
-                    elseif i_sing and not morsel then
-                        card = create_i_sing_card(area)
-                    elseif pseudorandom("cine_joker") >= 0.5 then
-                        card = create_morsel_card(area)
-                    else
+                    elseif type == "I Sing, I've No Shape" then
                         card = create_i_sing_card(area)
                     end
                 end
