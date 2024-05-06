@@ -1235,6 +1235,8 @@ function Card:use_consumeable(area, copier)
             trigger = "immediate",
             func = function()
                 if is_reverie then
+                    table.insert(G.GAME.current_round.used_cine, "Reverie")
+
                     for _, v in pairs(G.P_CENTERS) do
                         if v.set == "Cine" and v.name ~= "Let It Moon" then
                             table.insert(G.GAME.current_round.used_cine, v.name)
@@ -1326,6 +1328,15 @@ function Card:use_consumeable(area, copier)
     else
         use_consumeable_ref(self, area, copier)
     end
+end
+
+local card_open_ref = Card.open
+function Card:open()
+    if self.ability.set == "Booster" and G.shop and G.booster_pack_meteors then
+        G.booster_pack_meteors:fade(0)
+    end
+
+    card_open_ref(self)
 end
 
 local card_explode_ref = Card.explode
@@ -1718,6 +1729,53 @@ function Game:update_shop(dt)
             })
         end
     end
+
+    if find_used_cine("Reverie") and not G.booster_pack_meteors then
+        ease_background_colour_blind(G.STATES.SPECTRAL_PACK)
+        G.booster_pack_meteors = Particles(1, 1, 0, 0, {
+            timer = 0.035,
+            scale = 0.1,
+            lifespan = 1.5,
+            speed = 4,
+            attach = G.ROOM_ATTACH,
+            colours = {lighten(G.C.SECONDARY_SET.Cine, 0.2), G.C.WHITE},
+            fill = true
+        })
+    end
+end
+
+local toggle_shop_ref = G.FUNCS.toggle_shop
+function G.FUNCS.toggle_shop(e)
+    toggle_shop_ref(e)
+
+    G.E_MANAGER:add_event(Event({
+        trigger = "after",
+        delay = 0.6,
+        func = function()
+            end_cine_shop()
+
+            if G.booster_pack_meteors then
+                G.booster_pack_meteors:fade(0)
+            end
+
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0,
+                blocking = false,
+                blockable = false,
+                func = function()
+                    if G.booster_pack_meteors then
+                        G.booster_pack_meteors:remove()
+                        G.booster_pack_meteors = nil
+                    end
+    
+                    return true
+                end
+            }))
+
+            return true
+        end
+    }))
 end
 
 local back_apply_to_run_ref = Back.apply_to_run

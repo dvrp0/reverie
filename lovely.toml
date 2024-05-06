@@ -222,16 +222,6 @@ elseif _type == "Cine_Quest" then _pool[#_pool + 1] = "c_gem_heist_quest"'''
 match_indent = true
 overwrite = false
 
-[[patches]]
-[patches.pattern]
-target = "functions/button_callbacks.lua"
-pattern = '''G.shop:remove()'''
-position = "before"
-payload = '''
-end_cine_shop()'''
-match_indent = true
-overwrite = false
-
 # Make the card uses Tags' sprite atlas
 [[patches]]
 [patches.pattern]
