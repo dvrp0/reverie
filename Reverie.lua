@@ -572,7 +572,7 @@ function create_tag_as_card(area, big, excludes)
     return card
 end
 
-function create_booster(area, center)
+function create_booster_for_cine_shop(area, center)
     local card = Card(area.T.x + area.T.w / 2, area.T.y, G.CARD_W * 1.27, G.CARD_H * 1.27, G.P_CARDS.empty, center, {
         bypass_discovery_center = true,
         bypass_discovery_ui = true
@@ -1018,11 +1018,11 @@ function create_card_for_cine_shop(area)
                 local grade = poll >= 0.93 and "mega" or poll >= 0.63 and "jumbo" or "normal"
                 local index = grade == "normal" and math.random(1, 2) or 1
 
-                card = create_booster(area, G.P_CENTERS["p_spectral_"..grade.."_"..index])
+                card = create_booster_for_cine_shop(area, G.P_CENTERS["p_spectral_"..grade.."_"..index])
             elseif v.type == "Tag" then
                 card = create_tag_as_card(area)
             elseif v.type == "Crazy" then
-                card = create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
+                card = create_booster_for_cine_shop(area, G.P_CENTERS.p_crazy_lucky_1)
             end
 
             if not card then
@@ -1116,7 +1116,7 @@ function CardArea:emplace(card, location, stay_flipped)
             c:remove()
             c = nil
 
-            card = create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
+            card = create_booster_for_cine_shop(area, G.P_CENTERS.p_crazy_lucky_1)
             emplace_ref(self, card, location, stay_flipped)
         end
     end
@@ -1313,7 +1313,7 @@ function Card:use_consumeable(area, copier)
                         end
 
                         if G.GAME.current_round.used_packs[i] ~= "USED" then
-                            card = create_booster(G.shop_booster, G.P_CENTERS[G.GAME.current_round.used_packs[i]])
+                            card = create_booster_for_cine_shop(G.shop_booster, G.P_CENTERS[G.GAME.current_round.used_packs[i]])
                         end
 
                         card.ability.booster_pos = i
@@ -1789,7 +1789,11 @@ end
 
 local check_use_ref = Card.check_use
 function Card:check_use()
-    return self.area == G.pack_cards and G.STATE == G.STATES.CRAZY_PACK and false or check_use_ref(self)
+    if G.STATE == G.STATES.CRAZY_PACK then
+        return nil
+    end
+
+    return check_use_ref(self)
 end
 
 function G.FUNCS.can_select_crazy_card(e)
