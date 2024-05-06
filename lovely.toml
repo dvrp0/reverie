@@ -80,7 +80,6 @@ target = "tag.lua"
 pattern = '''tag_sprite.ability_UIBox_table = generate_card_ui(G.P_TAGS[self.key], nil, loc_vars, (self.hide_ability) and 'Undiscovered' or 'Tag', nil, (self.hide_ability))'''
 position = "before"
 payload = '''
--- find_used_cine_or("Tag or Die", "Crazy Lucky")
 if self.ability.as_card and name_to_check == "Skip Tag" then
     loc_vars[2] = self.config.skip_bonus * (G.GAME.skips or 0)
 end
@@ -351,13 +350,13 @@ elseif self.ability.name:find("Tag") then
     for _, v in ipairs(pack_cards) do
         table.insert(excludes, v.config.center.key)
     end
-    card = create_tag_as_card(G.pack_cards, true, excludes)
+    card = Reverie.create_tag_as_card(G.pack_cards, true, excludes)
 elseif self.ability.name == "Pack" then
     local excludes = {}
     for _, v in ipairs(pack_cards) do
         table.insert(excludes, v.config.center.key)
     end
-    card = create_crazy_random_card(G.pack_cards, excludes)
+    card = Reverie.create_crazy_random_card(G.pack_cards, excludes)
 elseif self.ability.name:find("Film") then
     card = create_card(self.ability.name:find("Mega") and "Cine" or "Cine_Quest", G.pack_cards, nil, nil, true, true, nil, "film")
 '''
@@ -381,8 +380,8 @@ target = "card.lua"
 pattern = '''card = create_card((pseudorandom(pseudoseed('stdset'..G.GAME.round_resets.ante)) > 0.6)*'''
 position = "before"
 payload = '''
-if find_used_cine("Poker Face") then
-    card = create_poker_face_card(G.pack_cards)
+if Reverie.find_used_cine("Poker Face") then
+    card = Reverie.create_poker_face_card(G.pack_cards)
     goto reverie_skip_create_card
 end
 '''
@@ -397,10 +396,10 @@ position = "before"
 payload = '''
 local cine_joker_types = {}
 
-if find_used_cine("Morsel") then
+if Reverie.find_used_cine("Morsel") then
     table.insert(cine_joker_types, "Morsel")
 end
-if find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
+if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
     table.insert(cine_joker_types, "I Sing, I've No Shape")
 end
 
@@ -408,9 +407,9 @@ if #cine_joker_types > 0 then
     local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
 
     if type == "Morsel" then
-        card = create_morsel_card(G.pack_cards)
+        card = Reverie.create_morsel_card(G.pack_cards)
     elseif type == "I Sing, I've No Shape" then
-        card = create_i_sing_card(G.pack_cards)
+        card = Reverie.create_i_sing_card(G.pack_cards)
     end
 
     goto reverie_skip_create_card
@@ -553,7 +552,7 @@ target = "functions/button_callbacks.lua"
 pattern = '''if card.ability.consumeable then'''
 position = "after"
 payload = '''
-local is_cine = is_cine_or_reverie(card)
+local is_cine = Reverie.is_cine_or_reverie(card)
 if G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK or (is_pack_card and is_cine) then
     (is_cine and G.cine_quests or G.consumeables):emplace(card)
     card:add_to_deck()
@@ -736,7 +735,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if is_cine_or_reverie(self) then
+if Reverie.is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit + 1
     if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
 
@@ -754,7 +753,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if is_cine_or_reverie(self) then
+if Reverie.is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
     if G.GAME.blind then G.E_MANAGER:add_event(Event({ func = function() G.GAME.blind:set_blind(nil, true, nil); return true end })) end
 
@@ -783,7 +782,7 @@ root_capture = "$indent"
 line_prepend = "$indent"
 payload = '''
 
-if is_cine_or_reverie(self) then
+if Reverie.is_cine_or_reverie(self) then
     G.cine_quests.config.card_limit = G.cine_quests.config.card_limit - 1
     goto reverie_queue_negative_removal_skip
 end
@@ -801,7 +800,7 @@ payload = '''
 
 if G.GAME.current_round.used_cine then
     for i = 1, G.GAME.shop.joker_max - #G.shop_jokers.cards do
-        local new_shop_card = create_card_for_cine_shop(G.shop_jokers)
+        local new_shop_card = Reverie.create_card_for_cine_shop(G.shop_jokers)
         G.shop_jokers:emplace(new_shop_card)
         new_shop_card:juice_up()
     end
