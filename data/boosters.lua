@@ -121,5 +121,37 @@ return {
             y = 1
         },
         discovered = false
-    }
+    },
+    p_flim_jumbo_1 = {
+        order = 9,
+        name = "Jumbo Film Pack",
+        config = {
+            extra = 4,
+            choose = 1
+        },
+        weight = 0.6,
+        kind = "Cine",
+        cost = 6,
+        pos = {
+            x = 3,
+            y = 1
+        },
+        discovered = false
+    },
+    p_flim_mega_1 = {
+        order = 10,
+        name = "Mega Film Pack",
+        config = {
+            extra = 2,
+            choose = 1
+        },
+        weight = 0.07,
+        kind = "Cine",
+        cost = 8,
+        pos = {
+            x = 4,
+            y = 1
+        },
+        discovered = false
+    },
 }

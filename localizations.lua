@@ -302,6 +302,22 @@ return {
                     "to add to your possession"
                 }
             },
+            p_film_jumbo = {
+                name = "Jumbo Film Pack",
+                text = {
+                    "Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2# {C:cine}Exchange Coupon{} cards",
+                    "to add to your possession"
+                }
+            },
+            p_film_mega = {
+                name = "Mega Film Pack",
+                text = {
+                    "Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2# {C:cine}Cine{} cards to add",
+                    "to your possession"
+                }
+            },
             undiscovered_cine = {
                 name = "Not Discovered",
                 text = {
@@ -617,6 +633,20 @@ return {
                 name = "영화 팩",
                 text = {
                     "최대 {C:attention}#2#{}개의 {C:cine}교환권{} 중",
+                    "{C:attention}#1#{}개를 선택해 보유합니다"
+                }
+            },
+            p_film_jumbo = {
+                name = "점보 영화 팩",
+                text = {
+                    "최대 {C:attention}#2#{}개의 {C:cine}교환권{} 중",
+                    "{C:attention}#1#{}개를 선택해 보유합니다"
+                }
+            },
+            p_film_mega = {
+                name = "메가 영화 팩",
+                text = {
+                    "최대 {C:attention}#2#{}개의 {C:cine}영화{} 카드 중",
                     "{C:attention}#1#{}개를 선택해 보유합니다"
                 }
             },

@@ -129,6 +129,8 @@ elseif _c.name == "Mega Tag Pack" then desc_override = "p_tag_mega"; loc_vars = 
 elseif _c.name == "Pack" then desc_override = "p_crazy_lucky"; loc_vars = {_c.config.choose, _c.config.extra}
 elseif _c.name == "Flipped Pack" then desc_override = "p_adrifting"; loc_vars = {_c.config.choose, _c.config.extra}
 elseif _c.name == "Film Pack" then desc_override = "p_film_normal"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Jumbo Film Pack" then desc_override = "p_film_jumbo"; loc_vars = {_c.config.choose, _c.config.extra}
+elseif _c.name == "Mega Film Pack" then desc_override = "p_film_mega"; loc_vars = {_c.config.choose, _c.config.extra}
 '''
 match_indent = true
 overwrite = false
@@ -357,7 +359,7 @@ elseif self.ability.name == "Pack" then
     end
     card = create_crazy_random_card(G.pack_cards, excludes)
 elseif self.ability.name:find("Film") then
-    card = create_card("Cine_Quest", G.pack_cards, nil, nil, true, true, nil, 'film')
+    card = create_card(self.ability.name:find("Mega") and "Cine" or "Cine_Quest", G.pack_cards, nil, nil, true, true, nil, "film")
 '''
 match_indent = true
 overwrite = false
