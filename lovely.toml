@@ -517,30 +517,21 @@ target = "card.lua"
 pattern = '''if self.ability.name == 'Invisible Joker' and (self.config.center.discovered or self.bypass_discovery_center) then'''
 position = "before"
 payload = '''
-if self.ability.set == "Cine" then
-    if self.ability.name == "The Unseen" then
+if self.ability.set == "Cine" and (not self.edition or not self.edition.negative) then
+    if self.ability.name == "The Unseen" and (self.config.center.discovered or self.bypass_discovery_center) then
+        self.children.center:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
         self.children.center:draw_shader("negative_shine", nil, self.ARGS.send_to_shader)
-    elseif self.ability.name == "I Sing, I've No Shape" and (not self.edition or not self.edition.negative) then
+
+        if self.children.front then
+            self.children.front:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
+        end
+    elseif self.ability.name == "I Sing, I've No Shape" then
         self.children.center:draw_shader("ticket_polychrome", nil, self.ARGS.send_to_shader)
     else
         self.children.center:draw_shader("ticket", nil, self.ARGS.send_to_shader)
     end
-end'''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "card.lua"
-pattern = '''elseif not self.greyed then'''
-position = "before"
-payload = '''
-elseif self.ability.set == "Cine" and self.ability.name == "The Unseen" and (self.config.center.discovered or self.bypass_discovery_center) then
-    self.children.center:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
-
-    if self.children.front then
-        self.children.front:draw_shader("ticket_negative", nil, self.ARGS.send_to_shader)
-    end'''
+end
+'''
 match_indent = true
 overwrite = false
 
