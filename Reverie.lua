@@ -630,19 +630,20 @@ function Reverie.create_crazy_random_card(area, excludes)
             card = create_card(target, area, nil, nil, true, true, nil, "crazy_j")
         end
     elseif target == "Consumeables" then
-        local moon, eerie = Reverie.find_used_cine("Let It Moon"), Reverie.find_used_cine("Eerie Inn")
+        local consumable_types = {}
 
-        if moon or eerie then
-            if (moon and not eerie) or (moon and eerie and pseudorandom("cine_consumable") > 0.5) then
-                card = create_card(pseudorandom_element({
-                    "Tarot",
-                    "Planet"
-                }, pseudoseed("cine_tr")), area, nil, nil, true, true, nil, "crazy_tr")
-            else
-                card = create_card("Spectral", area, nil, nil, true, true, nil, "crazy_s")
-            end
+        if Reverie.find_used_cine("Let It Moon") then
+            table.insert(consumable_types, "Tarot_Planet")
+        end
+        if Reverie.find_used_cine("Eerie Inn") then
+            table.insert(consumable_types, "Spectral")
+        end
+
+        if #consumable_types > 0 then
+            local type = pseudorandom_element(consumable_types, pseudoseed("cine_consumable"))
+            card = create_card(type, area, nil, nil, true, true, nil, "crazy_consumable")
         else
-            card = create_card(target, area, nil, nil, true, true, nil, "crazy_cv")
+            card = create_card(target, area, nil, nil, true, true, nil, "crazy_c")
         end
     elseif target == "Voucher" then
         card = create_card(target, area, nil, nil, true, true, nil, "crazy_v")
@@ -684,9 +685,15 @@ function Reverie.create_crazy_random_card(area, excludes)
 end
 
 function Reverie.create_i_sing_card(area)
-    local force = pseudorandom_element(G.jokers.cards, pseudoseed("ising")).config.center.key
+    local force = pseudorandom_element(G.jokers.cards, pseudoseed("ising"))
+    local card = create_card("Joker", area, nil, nil, nil, nil, force.config.center.key, "ising")
 
-    return create_card("Joker", area, nil, nil, nil, nil, force, "ising")
+    if Reverie.find_used_cine("Morsel") and Reverie.is_food_joker(force.config.center.key) then
+        card.ability.morseled = true
+        Reverie.double_ability(force.config.center.config, card.ability)
+    end
+
+    return card
 end
 
 function Reverie.create_poker_face_card(area)
@@ -717,21 +724,21 @@ function Reverie.is_food_joker(key)
     end
 end
 
-function Reverie.create_morsel_card(area)
-    function double_ability(origin, new)
-        for k, v in pairs(origin) do
-            if type(v) == "number" then
-                new[k] = v * 2
-
-                if k == "Xmult" then
-                    new.x_mult = v * 2
-                end
-            elseif type(v) == "table" then
-                double_ability(v, new[k])
+function Reverie.double_ability(origin, new)
+    for k, v in pairs(origin) do
+        if type(v) == "number" then
+            new[k] = v * 2
+    
+            if k == "Xmult" then
+                new.x_mult = v * 2
             end
+        elseif type(v) == "table" then
+            Reverie.double_ability(v, new[k])
         end
     end
+end
 
+function Reverie.create_morsel_card(area)
     local available = Reverie.get_food_jokers()
 
     if not next(find_joker("Showman")) then
@@ -749,7 +756,7 @@ function Reverie.create_morsel_card(area)
     local target = pseudorandom_element(available, pseudoseed("mor"))
     local card = create_card("Joker", area, nil, nil, nil, nil, target, "sel")
     card.ability.morseled = true
-    double_ability(G.P_CENTERS[target].config, card.ability)
+    Reverie.double_ability(G.P_CENTERS[target].config, card.ability)
 
     return card
 end
