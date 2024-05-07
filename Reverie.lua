@@ -10,17 +10,16 @@
 ------------MOD CODE -------------------------
 
 Reverie = {}
-
-REVERIE_LANG = {}
-REVERIE_FLIPPED_VOUCHER_POS = {
+Reverie.cine_color = HEX("9db95f")
+Reverie.flipped_voucher_pos = {
     x = 0,
     y = 0
 }
-REVERIE_FLIPPED_TAG_POS = {
+Reverie.flipped_tag_pos = {
     x = 0,
     y = 1
 }
-REVERIE_FLIPPED_BOOSTER_POS = {
+Reverie.flipped_booster_pos = {
     x = 5,
     y = 0
 }
@@ -57,8 +56,6 @@ end
 
 function SMODS.INIT.Reverie()
     local mod = SMODS.findModByID("Reverie")
-    local cine_color = HEX("9db95f")
-    local jokers, boosters, cines, tags, backs, spectrals = nil, nil, nil, nil, nil, nil
 
     SMODS.Sprite:new("Cine", mod.path, "cines.png", 71, 95, "asset_atli"):register()
     SMODS.Sprite:new("cine_jokers", mod.path, "jokers.png", 71, 95, "asset_atli"):register()
@@ -79,19 +76,19 @@ function SMODS.INIT.Reverie()
         end
 
         local loc_en, loc_ko = NFS.load(mod.path.."localizations.lua")()
-        REVERIE_LANG = G.LANG.key == "ko" and loc_ko or loc_en
+        Reverie.lang = G.LANG.key == "ko" and loc_ko or loc_en
 
-        apply(G.localization, REVERIE_LANG)
+        apply(G.localization, Reverie.lang)
         init_localization()
     end
 
     local function inject_jokers()
-        jokers = NFS.load(mod.path.."/data/jokers.lua")()
+        Reverie.jokers = NFS.load(mod.path.."/data/jokers.lua")()
 
-        for _, v in ipairs(jokers) do
+        for _, v in ipairs(Reverie.jokers) do
             local slug = "j_"..v.slug
 
-            SMODS.Joker:new(v.name, v.slug, v.config, v.pos, REVERIE_LANG.descriptions.Joker[slug], v.rarity, v.cost,
+            SMODS.Joker:new(v.name, v.slug, v.config, v.pos, Reverie.lang.descriptions.Joker[slug], v.rarity, v.cost,
                 v.unlocked, v.discovered, v.blueprint_compat, v.eternal_compat, v.effect, "cine_jokers", v.soul_pos):register()
 
             SMODS.Jokers[slug].loc_def = v.loc_def
@@ -100,7 +97,7 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_boosters()
-        boosters = NFS.load(mod.path.."/data/boosters.lua")()
+        Reverie.boosters = NFS.load(mod.path.."/data/boosters.lua")()
 
         local states = table_length(G.STATES)
         G.STATES.TAG_PACK = states + 1
@@ -108,7 +105,7 @@ function SMODS.INIT.Reverie()
         G.STATES.FILM_PACK = states + 3
 
         local boosters_length = table_length(G.P_CENTER_POOLS.Booster)
-        for k, v in pairs(boosters) do
+        for k, v in pairs(Reverie.boosters) do
             v.order = v.order + boosters_length
             v.key = k
             v.set = "Booster"
@@ -125,11 +122,11 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_cines()
-        cines = NFS.load(mod.path.."/data/cines.lua")()
+        Reverie.cines = NFS.load(mod.path.."/data/cines.lua")()
 
         G.P_CENTER_POOLS.Cine = {}
         G.P_CENTER_POOLS.Cine_Quest = {}
-        G.C.SECONDARY_SET.Cine = cine_color
+        G.C.SECONDARY_SET.Cine = Reverie.cine_color
         G.C.SECONDARY_SET.Tag = HEX("a6b8ce")
         G.cine_undiscovered = {
             unlocked = false,
@@ -153,7 +150,7 @@ function SMODS.INIT.Reverie()
             end
         end
 
-        for k, v in pairs(cines) do
+        for k, v in pairs(Reverie.cines) do
             v.key = k
             v.consumeable = true
             v.config = v.config or {}
@@ -173,10 +170,10 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_tags()
-        tags = NFS.load(mod.path.."/data/tags.lua")()
+        Reverie.tags = NFS.load(mod.path.."/data/tags.lua")()
 
         local tags_length = table_length(G.P_CENTER_POOLS.Tag)
-        for k, v in pairs(tags) do
+        for k, v in pairs(Reverie.tags) do
             v.order = v.order + tags_length
             v.key = k
             v.config = v.config or {}
@@ -193,23 +190,23 @@ function SMODS.INIT.Reverie()
     end
 
     local function inject_backs()
-        backs = NFS.load(mod.path.."/data/backs.lua")()
+        Reverie.backs = NFS.load(mod.path.."/data/backs.lua")()
 
-        for _, v in ipairs(backs) do
+        for _, v in ipairs(Reverie.backs) do
             local slug = "b_"..v.slug
 
             v.config.atlas = "cine_backs"
-            SMODS.Deck:new(v.name, v.slug, v.config, v.pos, REVERIE_LANG.descriptions.Back[slug], v.unlocked, v.discover):register()
+            SMODS.Deck:new(v.name, v.slug, v.config, v.pos, Reverie.lang.descriptions.Back[slug], v.unlocked, v.discover):register()
         end
     end
 
     local function inject_spectrals()
-        spectrals = NFS.load(mod.path.."/data/spectrals.lua")()
+        Reverie.spectrals = NFS.load(mod.path.."/data/spectrals.lua")()
 
-        for _, v in ipairs(spectrals) do
+        for _, v in ipairs(Reverie.spectrals) do
             local slug = "c_"..v.slug
 
-            SMODS.Spectral:new(v.name, v.slug, v.config, v.pos, REVERIE_LANG.descriptions.Spectral[slug], v.cost, true, v.discovered, "Cine"):register()
+            SMODS.Spectral:new(v.name, v.slug, v.config, v.pos, Reverie.lang.descriptions.Spectral[slug], v.cost, true, v.discovered, "Cine"):register()
 
             SMODS.Spectrals[slug].can_use = v.can_use
             SMODS.Spectrals[slug].use = v.use
@@ -240,79 +237,79 @@ function SMODS.INIT.Reverie()
 
         SMODS.SAVE_UNLOCKS()
     end
+end
 
-    local loc_colour_ref = loc_colour
-    function loc_colour(_c, _default)
-        loc_colour_ref(_c, _default)
-        if not G.ARGS.LOC_COLOURS.cine then
-            G.ARGS.LOC_COLOURS["cine"] = cine_color
-        end
-
-        return G.ARGS.LOC_COLOURS[_c] or _default or G.C.UI.TEXT_DARK
+local loc_colour_ref = loc_colour
+function loc_colour(_c, _default)
+    loc_colour_ref(_c, _default)
+    if not G.ARGS.LOC_COLOURS.cine then
+        G.ARGS.LOC_COLOURS["cine"] = Reverie.cine_color
     end
 
-    local create_UIBox_your_collection_tags_ref = create_UIBox_your_collection_tags
-    function create_UIBox_your_collection_tags()
-        local t = create_UIBox_your_collection_tags_ref()
+    return G.ARGS.LOC_COLOURS[_c] or _default or G.C.UI.TEXT_DARK
+end
 
-        if SMODS.Tag then -- Codex Arcanum has Tag API
-            return t
-        end
+local create_UIBox_your_collection_tags_ref = create_UIBox_your_collection_tags
+function create_UIBox_your_collection_tags()
+    local t = create_UIBox_your_collection_tags_ref()
 
-        local tag_matrix = {}
-        local tag_tab = {}
-        for _, v in pairs(tags) do
-            tag_tab[#tag_tab + 1] = v
-        end
-
-        table.sort(tag_tab, function (a, b) return a.order < b.order end)
-
-        local tags_to_be_alerted = {}
-        for k, v in ipairs(tag_tab) do
-            local discovered = v.discovered
-            local temp_tag = Tag(v.key, true)
-            if not v.discovered then temp_tag.hide_ability = true end
-            local temp_tag_ui, temp_tag_sprite = temp_tag:generate_UI()
-            local index, subindex = math.ceil((k - 1) / 6 + 0.001), 1 + ((k - 1) % 6)
-
-            if not tag_matrix[index] then
-                tag_matrix[index] = {}
-            end
-
-            tag_matrix[index][subindex] = {n=G.UIT.C, config={align = "cm", padding = 0.1}, nodes={
-                temp_tag_ui
-            }}
-            if discovered and not v.alerted then
-            tags_to_be_alerted[#tags_to_be_alerted+1] = temp_tag_sprite
-            end
-        end
-
-        G.E_MANAGER:add_event(Event({
-            trigger = 'immediate',
-            func = (function()
-                for _, v in ipairs(tags_to_be_alerted) do
-                v.children.alert = UIBox{
-                    definition = create_UIBox_card_alert(), 
-                    config = { align="tri", offset = {x = 0.1, y = 0.1}, parent = v}
-                }
-                v.children.alert.states.collide.can = false
-                end
-                return true
-            end)
-        }))
-
-        for _, v in ipairs(tag_matrix) do
-            table.insert(t.nodes[1].nodes[1].nodes[1].nodes[1].nodes[1].nodes, {
-                n = G.UIT.R,
-                config = {
-                    align = "cm"
-                },
-                nodes = v
-            })
-        end
-
+    if SMODS.Tag then -- Codex Arcanum has Tag API
         return t
     end
+
+    local tag_matrix = {}
+    local tag_tab = {}
+    for _, v in pairs(Reverie.tags) do
+        tag_tab[#tag_tab + 1] = v
+    end
+
+    table.sort(tag_tab, function (a, b) return a.order < b.order end)
+
+    local tags_to_be_alerted = {}
+    for k, v in ipairs(tag_tab) do
+        local discovered = v.discovered
+        local temp_tag = Tag(v.key, true)
+        if not v.discovered then temp_tag.hide_ability = true end
+        local temp_tag_ui, temp_tag_sprite = temp_tag:generate_UI()
+        local index, subindex = math.ceil((k - 1) / 6 + 0.001), 1 + ((k - 1) % 6)
+
+        if not tag_matrix[index] then
+            tag_matrix[index] = {}
+        end
+
+        tag_matrix[index][subindex] = {n=G.UIT.C, config={align = "cm", padding = 0.1}, nodes={
+            temp_tag_ui
+        }}
+        if discovered and not v.alerted then
+        tags_to_be_alerted[#tags_to_be_alerted+1] = temp_tag_sprite
+        end
+    end
+
+    G.E_MANAGER:add_event(Event({
+        trigger = 'immediate',
+        func = (function()
+            for _, v in ipairs(tags_to_be_alerted) do
+            v.children.alert = UIBox{
+                definition = create_UIBox_card_alert(), 
+                config = { align="tri", offset = {x = 0.1, y = 0.1}, parent = v}
+            }
+            v.children.alert.states.collide.can = false
+            end
+            return true
+        end)
+    }))
+
+    for _, v in ipairs(tag_matrix) do
+        table.insert(t.nodes[1].nodes[1].nodes[1].nodes[1].nodes[1].nodes, {
+            n = G.UIT.R,
+            config = {
+                align = "cm"
+            },
+            nodes = v
+        })
+    end
+
+    return t
 end
 
 local set_discover_tallies_ref = set_discover_tallies
@@ -2198,9 +2195,9 @@ function Reverie.set_card_back(card)
         card.children.back:set_sprite_pos(G.GAME.selected_back.pos)
     elseif card.ability.set == "Voucher" then
         card.children.back.atlas = G.ASSET_ATLAS["cine_vouchers"]
-        card.children.back:set_sprite_pos(REVERIE_FLIPPED_VOUCHER_POS)
+        card.children.back:set_sprite_pos(Reverie.flipped_voucher_pos)
     elseif card.ability.set == "Tag" then
-        card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["cine_tags"], REVERIE_FLIPPED_TAG_POS)
+        card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["cine_tags"], Reverie.flipped_tag_pos)
         card.children.back.states.hover = card.states.hover
         card.children.back.states.click = card.states.click
         card.children.back.states.drag = card.states.drag
@@ -2208,7 +2205,7 @@ function Reverie.set_card_back(card)
         card.children.back:set_role({major = card, role_type = "Glued", draw_major = card})
     elseif card.ability.set == "Booster" or card.ability.set == "Booster_dx" then
         card.children.back.atlas = G.ASSET_ATLAS["cine_boosters"]
-        card.children.back:set_sprite_pos(REVERIE_FLIPPED_BOOSTER_POS)
+        card.children.back:set_sprite_pos(Reverie.flipped_booster_pos)
     end
 end
 
