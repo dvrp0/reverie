@@ -311,4 +311,38 @@ return {
         },
         discovered = false
     },
+    c_alchemist = {
+        order = 22,
+        name = "Fool Metal Alchemist",
+        config = {
+            extra = {
+                slot = 2,
+                kind = {
+                    "p_alchemy_"
+                }
+            }
+        },
+        cost = 4,
+        pos = {
+            x = 2,
+            y = 2
+        },
+        dependency = "CodexArcanum",
+        discovered = false
+    },
+    c_alchemist_quest = {
+        order = 21,
+        name = "Fool Metal Alchemist Exchange Coupon",
+        reward = "c_alchemist",
+        config = {
+            extra = 6
+        },
+        cost = 4,
+        pos = {
+            x = 3,
+            y = 2
+        },
+        dependency = "CodexArcanum",
+        discovered = false
+    }
 }

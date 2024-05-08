@@ -104,6 +104,8 @@ elseif _c.set == "Cine" then
             loc_vars = {_c.config.extra.mult}
         elseif _c.name == "Crazy Lucky" then
             info_queue[#info_queue+1] = G.P_CENTERS.p_crazy_lucky_1
+        elseif _c.name == "Fool Metal Alchemist" then
+            loc_vars = {_c.config.extra.slot}
         else
             loc_vars = {_c.config.extra}
         end

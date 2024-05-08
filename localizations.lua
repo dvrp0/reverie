@@ -180,6 +180,25 @@ return {
                     "values appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
+            },
+            c_alchemist_quest = {
+                name = "Exchange Coupon",
+                text = {
+                    "Converts to {C:cine}Fool Metal",
+                    "{C:cine}Alchemist{} after using",
+                    "{C:attention}#1# {C:alchemical}Alchemical{} cards",
+                    "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_alchemist = {
+                name = "Fool Metal Alchemist",
+                text = {
+                    "During this shop,",
+                    "{C:attention}+#1#{} consumable slot",
+                    "and only {C:alchemical}Alchemical{}",
+                    "cards appear",
+                    "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
+                }
             }
         },
         Joker = {
@@ -521,6 +540,23 @@ return {
                     "이번 상점 동안에는",
                     "모든 능력치가 {C:attention}두 배{}가 된",
                     "{C:attention}음식 조커{}만 나타납니다",
+                    "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
+                }
+            },
+            c_alchemist_quest = {
+                name = "교환권",
+                text = {
+                    "{C:alchemical}연금술{} 카드를 {C:attention}#1#{}장 사용하면",
+                    "{C:cine}풀 메탈 알케미스트{}로 바뀝니다",
+                    "{C:inactive}(현재 {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_alchemist = {
+                name = "풀 메탈 알케미스트",
+                text = {
+                    "이번 상점 동안에는",
+                    "소모품 슬롯이 {C:attention}+#1#{}개 증가하고",
+                    "{C:alchemical}연금술{} 카드만 나타납니다",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             }

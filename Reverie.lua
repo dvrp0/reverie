@@ -158,7 +158,7 @@ function SMODS.INIT.Reverie()
             v.set = "Cine"
             v.pos = v.pos or {}
 
-            if not G.P_CENTERS[k] and not G.P_CENTER_POOLS.Consumeables[k] then
+            if not G.P_CENTERS[k] and not G.P_CENTER_POOLS.Consumeables[k] and (not v.dependency or SMODS.findModByID(v.dependency)) then
                 G.P_CENTERS[k] = v
                 table.insert(G.P_CENTER_POOLS[v.reward and "Cine_Quest" or "Cine"], v)
                 table.insert(G.P_CENTER_POOLS.Consumeables, v)
@@ -423,7 +423,7 @@ function create_UIBox_your_collection_cines()
     G.your_collection = {}
     for j = 1, 2 do
         G.your_collection[j] = CardArea(G.ROOM.T.x + 0.2 * G.ROOM.T.w / 2, G.ROOM.T.h, (4.25 + (j == 2 and 2 or 0)) * G.CARD_W, 1 * G.CARD_H, {
-                card_limit = 1 + j,
+                card_limit = (1 + j) * 2,
                 type = "voucher",
                 highlight_limit = 0,
                 collection = true
@@ -524,6 +524,10 @@ function Reverie.end_cine_shop()
 
     if G.GAME.cached_alchemical_rate then
         G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
+    end
+
+    if G.GAME.current_round.cine_cached_consumeable_limit then
+        G.consumeables.config.card_limit = G.GAME.current_round.cine_cached_consumeable_limit
     end
 
     G.GAME.current_round.max_boosters = nil
@@ -634,6 +638,9 @@ function Reverie.create_crazy_random_card(area, excludes)
         end
         if Reverie.find_used_cine("Eerie Inn") then
             table.insert(consumable_types, "Spectral")
+        end
+        if Reverie.find_used_cine("Fool Metal Alchemist") then
+            table.insert(consumable_types, "Alchemical")
         end
 
         if #consumable_types > 0 then
@@ -799,7 +806,8 @@ function Reverie.find_used_cine_all(...)
 end
 
 function Reverie.is_cine_forcing_card_set()
-    return Reverie.find_used_cine_or("I Sing, I've No Shape", "Crazy Lucky", "Tag or Die", "Let It Moon", "Poker Face", "Eerie Inn", "Morsel")
+    return Reverie.find_used_cine_or("I Sing, I've No Shape", "Crazy Lucky", "Tag or Die", "Let It Moon",
+        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist")
 end
 
 function Reverie.get_used_cine_kinds()
@@ -911,46 +919,52 @@ function Reverie.create_card_for_cine_shop(area)
         end
     end
 
-    local has_oddity = G.GAME.oddity_rate or G.GAME.cached_oddity_rate
-    local has_alchemical = G.GAME.alchemical_rate or G.GAME.cached_alchemical_rate
+    local has_oddity = SMODS.findModByID("TheAutumnCircus")
+    local has_alchemical = SMODS.findModByID("CodexArcanum")
 
     local crazy_pack_available = Reverie.find_used_cine("Crazy Lucky")
     local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel") or not is_forcing_card_set) and not crazy_pack_available
-    local planet_or_tarot_available = (Reverie.find_used_cine_or("Let It Moon") or not is_forcing_card_set) and not crazy_pack_available
-    local playing_available = (Reverie.find_used_cine_or("Poker Face") or not is_forcing_card_set) and not crazy_pack_available
-    local spectral_available = (Reverie.find_used_cine_or("Eerie Inn") or not is_forcing_card_set) and not crazy_pack_available
+    local planet_or_tarot_available = (Reverie.find_used_cine("Let It Moon") or not is_forcing_card_set) and not crazy_pack_available
+    local playing_available = (Reverie.find_used_cine("Poker Face") or not is_forcing_card_set) and not crazy_pack_available
+    local spectral_available = (Reverie.find_used_cine("Eerie Inn") or not is_forcing_card_set) and not crazy_pack_available
     local tag_available = Reverie.find_used_cine("Tag or Die") and not crazy_pack_available
     local oddity_available, alchemical_available = nil, nil
 
-    local playing_card_rate = G.GAME.playing_card_rate or 0
-    local spectral_rate = G.GAME.spectral_rate or 0
+    local playing_card_rate = Reverie.find_used_cine("Poker Face") and G.GAME.joker_rate or G.GAME.playing_card_rate or 0
+    local spectral_rate = Reverie.find_used_cine("Eerie Inn") and G.GAME.joker_rate or G.GAME.spectral_rate or 0
     local oddity_rate, alchemical_rate = nil, nil
-
-    if Reverie.find_used_cine("Eerie Inn") then
-        spectral_rate = G.GAME.joker_rate
-    end
-
-    if Reverie.find_used_cine("Poker Face") then
-        playing_card_rate = G.GAME.joker_rate
-    end
-
     local total_rate = (joker_available and G.GAME.joker_rate or 0)
         + (planet_or_tarot_available and (G.GAME.tarot_rate + G.GAME.planet_rate) or 0)
         + (playing_available and playing_card_rate or 0)
         + (spectral_available and spectral_rate or 0)
         + (tag_available and G.GAME.joker_rate or 0)
         + (crazy_pack_available and G.GAME.joker_rate or 0)
-
+    local candidates = {
+        {type = "Joker", val = joker_available and G.GAME.joker_rate or 0, available = joker_available},
+        {type = "Tarot", val = planet_or_tarot_available and G.GAME.tarot_rate or 0, available = planet_or_tarot_available},
+        {type = "Planet", val = planet_or_tarot_available and G.GAME.planet_rate or 0, available = planet_or_tarot_available},
+        {
+            type = (G.GAME.used_vouchers["v_illusion"] and pseudorandom(pseudoseed("illusion")) > 0.6) and "Enhanced" or
+                "Base",
+            val = playing_available and playing_card_rate or 0, available = playing_available
+        },
+        {type = "Spectral", val = spectral_available and spectral_rate or 0, available = spectral_available},
+        {type = "Tag", val = tag_available and G.GAME.joker_rate or 0, available = tag_available},
+        {type = "Crazy", val = crazy_pack_available and G.GAME.joker_rate or 0, available = crazy_pack_available},
+    }
+    
     if has_oddity then
         oddity_rate = G.GAME.oddity_rate > 0 and G.GAME.oddity_rate or G.GAME.cached_oddity_rate or 0
         oddity_available = not is_forcing_card_set and not crazy_pack_available
         total_rate = total_rate + (oddity_available and oddity_rate or 0)
+        table.insert(candidates, {type = "Oddity", val = oddity_available and oddity_rate or 0, available = oddity_available})
     end
-
+    
     if has_alchemical then
-        alchemical_rate = G.GAME.alchemical_rate or G.GAME.cached_alchemical_rate or 0
-        alchemical_available = not is_forcing_card_set and not crazy_pack_available
+        alchemical_rate = Reverie.find_used_cine_or("Fool Metal Alchemist") and G.GAME.joker_rate or G.GAME.alchemical_rate or G.GAME.cached_alchemical_rate or 0
+        alchemical_available = (Reverie.find_used_cine_or("Fool Metal Alchemist") or not is_forcing_card_set) and not crazy_pack_available
         total_rate = total_rate + (alchemical_available and alchemical_rate or 0)
+        table.insert(candidates, {type = "Alchemical", val = alchemical_available and alchemical_rate or 0, available = alchemical_available})
     end
 
     local polled_rate = pseudorandom(pseudoseed("cdt" .. G.GAME.round_resets.ante)) * total_rate
@@ -973,23 +987,7 @@ function Reverie.create_card_for_cine_shop(area)
 
     print("Total Rate: "..total_rate..", Polled Rate: "..polled_rate)
 
-    for _, v in ipairs(
-        {
-            {type = "Joker", val = joker_available and G.GAME.joker_rate or 0, available = joker_available},
-            {type = "Tarot", val = planet_or_tarot_available and G.GAME.tarot_rate or 0, available = planet_or_tarot_available},
-            {type = "Planet", val = planet_or_tarot_available and G.GAME.planet_rate or 0, available = planet_or_tarot_available},
-            {
-                type = (G.GAME.used_vouchers["v_illusion"] and pseudorandom(pseudoseed("illusion")) > 0.6) and "Enhanced" or
-                    "Base",
-                val = playing_available and playing_card_rate or 0, available = playing_available
-            },
-            {type = "Spectral", val = spectral_available and spectral_rate or 0, available = spectral_available},
-            {type = "Tag", val = tag_available and G.GAME.joker_rate or 0, available = tag_available},
-            {type = "Crazy", val = crazy_pack_available and G.GAME.joker_rate or 0, available = crazy_pack_available},
-            has_oddity and {type = "Oddity", val = oddity_available and oddity_rate or 0, available = oddity_available} or nil,
-            has_alchemical and {type = "Alchemical", val = alchemical_available and alchemical_rate or 0, available = alchemical_available} or nil
-        }
-    ) do
+    for _, v in ipairs(candidates) do
         print("Checking: "..v.type..", Available: "..tostring(v.available)..", Polled Rate("..polled_rate..
             ") <= Check Rate("..check_rate..") + Val("..v.val..") = ("..check_rate + v.val..")")
 
@@ -1262,6 +1260,11 @@ function Card:use_consumeable(area, copier)
                 if is_reverie or self.ability.name == "I Sing, I've No Shape" or self.ability.name == "The Unseen"
                 or self.ability.name == "Let It Moon" or self.ability.name == "Eerie Inn" then
                     calculate_reroll_cost(true)
+                end
+
+                if is_reverie or self.ability.name == "Fool Metal Alchemist" then
+                    G.GAME.current_round.cine_cached_consumeable_limit = G.consumeables.config.card_limit
+                    G.consumeables.config.card_limit = G.consumeables.config.card_limit + 2
                 end
 
                 Reverie.ban_modded_consumables()
@@ -1939,7 +1942,8 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_poker_face" and context.enhancing_card)
         or (self.config.center.reward == "c_eerie_inn" and context.any_card_destroyed)
         or (self.config.center.reward == "c_adrifting" and context.debuff_or_flipped_played)
-        or (self.config.center.reward == "c_morsel" and context.joker_added and Reverie.is_food_joker(context.card.config.center_key)) then
+        or (self.config.center.reward == "c_morsel" and context.joker_added and Reverie.is_food_joker(context.card.config.center_key))
+        or (self.config.center.reward == "c_alchemist" and context.using_consumeable and context.consumeable.ability.set == "Alchemical") then
             return Reverie.progress_cine_quest(self)
         end
     end
