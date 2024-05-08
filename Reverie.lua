@@ -1229,6 +1229,10 @@ end
 
 local use_consumeable_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
+    if not self.debuff then
+        self.ability.consumable_used = true
+    end
+
     if Reverie.is_cine_or_reverie(self) then
         local is_reverie = self.ability.name == "Reverie"
 
