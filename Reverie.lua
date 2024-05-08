@@ -1090,7 +1090,7 @@ function CardArea:emplace(card, location, stay_flipped)
         local is_dx_tarot_planet = SMODS.findModByID("JeffDeluxeConsumablesPack") and (card.ability.set == "Planet" or card.ability.set == "Planet_dx")
         local editions = {}
 
-        if heist and (card.ability.set == "Joker" or is_dx_tarot_planet or card.ability.set == "Base" or card.ability.set == "Enhanced") then
+        if heist and (card.ability.set == "Joker" or is_dx_tarot_planet or card.ability.set == "Default" or card.ability.set == "Enhanced") then
             table.insert(editions, "polychrome")
         end
         if unseen and (card.ability.set == "Joker" or card.ability.consumeable) then
