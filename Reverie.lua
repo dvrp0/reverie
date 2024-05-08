@@ -526,8 +526,9 @@ function Reverie.end_cine_shop()
         G.GAME.alchemical_rate = G.GAME.cached_alchemical_rate
     end
 
-    if G.GAME.current_round.cine_cached_consumeable_limit then
-        G.consumeables.config.card_limit = G.GAME.current_round.cine_cached_consumeable_limit
+    if G.GAME.current_round.cine_temporary_consumeable_limit then
+        G.GAME.current_round.cine_temporary_consumeable_limit = nil
+        G.consumeables.config.card_limit = math.max(0, G.consumeables.config.card_limit - 2)
     end
 
     G.GAME.current_round.max_boosters = nil
@@ -1263,7 +1264,7 @@ function Card:use_consumeable(area, copier)
                 end
 
                 if is_reverie or self.ability.name == "Fool Metal Alchemist" then
-                    G.GAME.current_round.cine_cached_consumeable_limit = G.consumeables.config.card_limit
+                    G.GAME.current_round.cine_temporary_consumeable_limit = true
                     G.consumeables.config.card_limit = G.consumeables.config.card_limit + 2
                 end
 
