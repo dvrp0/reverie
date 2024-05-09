@@ -1121,7 +1121,7 @@ function CardArea:emplace(card, location, stay_flipped)
             c:remove()
             c = nil
 
-            card = Reverie.create_booster(area, G.P_CENTERS.p_crazy_lucky_1)
+            card = Reverie.create_booster(self, G.P_CENTERS.p_crazy_lucky_1)
             emplace_ref(self, card, location, stay_flipped)
         end
     end
