@@ -194,9 +194,8 @@ return {
                 name = "Fool Metal Alchemist",
                 text = {
                     "During this shop,",
-                    "{C:attention}+#1#{} consumable slot",
-                    "and only {C:alchemical}Alchemical{}",
-                    "cards appear",
+                    "{C:attention}+#1#{} consumable slot and",
+                    "only {C:alchemical}Alchemical{} cards appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
             },
@@ -204,8 +203,7 @@ return {
                 name = "Exchange Coupon",
                 text = {
                     "Converts to {C:cine}Every Hue",
-                    "after using {C:attention}#1#",
-                    "{C:colourcard}Colour{} cards",
+                    "after using {C:attention}#1# {C:colourcard}Colour{} cards",
                     "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
                 }
             },
