@@ -199,6 +199,24 @@ return {
                     "cards appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
+            },
+            c_every_hue_quest = {
+                name = "Exchange Coupon",
+                text = {
+                    "Converts to {C:cine}Every Hue",
+                    "after using {C:attention}#1#",
+                    "{C:colourcard}Colour{} cards",
+                    "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_every_hue = {
+                name = "Every Hue",
+                text = {
+                    "During this shop,",
+                    "only halfway progressed",
+                    "{C:colourcard}Colour{} cards appear",
+                    "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
+                }
             }
         },
         Joker = {
@@ -557,6 +575,23 @@ return {
                     "이번 상점 동안에는",
                     "소모품 슬롯이 {C:attention}+#1#{}개 증가하고",
                     "{C:alchemical}연금술{} 카드만 나타납니다",
+                    "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
+                }
+            },
+            c_every_hue_quest = {
+                name = "교환권",
+                text = {
+                    "{C:colourcard}색상{} 카드를 {C:attention}#1#{}장 사용하면",
+                    "{C:cine}모든 빛깔의{}로 바뀝니다",
+                    "{C:inactive}(현재 {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_every_hue = {
+                name = "모든 빛깔의",
+                text = {
+                    "이번 상점 동안에는",
+                    "절반만큼 진행된",
+                    "{C:colourcard}색상{} 카드만 나타납니다",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             }

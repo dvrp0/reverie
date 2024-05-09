@@ -335,7 +335,7 @@ return {
         name = "Fool Metal Alchemist Exchange Coupon",
         reward = "c_alchemist",
         config = {
-            extra = 6
+            extra = 5
         },
         cost = 4,
         pos = {
@@ -343,6 +343,39 @@ return {
             y = 2
         },
         dependency = "CodexArcanum",
+        discovered = false
+    },
+    c_every_hue = {
+        order = 24,
+        name = "Every Hue",
+        config = {
+            extra = {
+                kind = {
+                    "p_colour_"
+                }
+            }
+        },
+        cost = 4,
+        pos = {
+            x = 4,
+            y = 2
+        },
+        dependency = "MoreFluff",
+        discovered = false
+    },
+    c_every_hue_quest = {
+        order = 23,
+        name = "Every Hue Exchange Coupon",
+        reward = "c_every_hue",
+        config = {
+            extra = 2
+        },
+        cost = 4,
+        pos = {
+            x = 5,
+            y = 2
+        },
+        dependency = "MoreFluff",
         discovered = false
     }
 }

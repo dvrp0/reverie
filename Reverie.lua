@@ -643,6 +643,9 @@ function Reverie.create_crazy_random_card(area, excludes)
         if Reverie.find_used_cine("Fool Metal Alchemist") then
             table.insert(consumable_types, "Alchemical")
         end
+        if Reverie.find_used_cine("Every Hue") then
+            table.insert(consumable_types, "Colour")
+        end
 
         if #consumable_types > 0 then
             local type = pseudorandom_element(consumable_types, pseudoseed("cine_consumable"))
@@ -808,7 +811,7 @@ end
 
 function Reverie.is_cine_forcing_card_set()
     return Reverie.find_used_cine_or("I Sing, I've No Shape", "Crazy Lucky", "Tag or Die", "Let It Moon",
-        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist")
+        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist", "Every Hue")
 end
 
 function Reverie.get_used_cine_kinds()
@@ -922,6 +925,7 @@ function Reverie.create_card_for_cine_shop(area)
 
     local has_oddity = SMODS.findModByID("TheAutumnCircus")
     local has_alchemical = SMODS.findModByID("CodexArcanum")
+    local has_colour = SMODS.findModByID("MoreFluff")
 
     local crazy_pack_available = Reverie.find_used_cine("Crazy Lucky")
     local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel") or not is_forcing_card_set) and not crazy_pack_available
@@ -929,11 +933,11 @@ function Reverie.create_card_for_cine_shop(area)
     local playing_available = (Reverie.find_used_cine("Poker Face") or not is_forcing_card_set) and not crazy_pack_available
     local spectral_available = (Reverie.find_used_cine("Eerie Inn") or not is_forcing_card_set) and not crazy_pack_available
     local tag_available = Reverie.find_used_cine("Tag or Die") and not crazy_pack_available
-    local oddity_available, alchemical_available = nil, nil
+    local oddity_available, alchemical_available, colour_available = nil, nil, nil
 
     local playing_card_rate = Reverie.find_used_cine("Poker Face") and G.GAME.joker_rate or G.GAME.playing_card_rate or 0
     local spectral_rate = Reverie.find_used_cine("Eerie Inn") and G.GAME.joker_rate or G.GAME.spectral_rate or 0
-    local oddity_rate, alchemical_rate = nil, nil
+    local oddity_rate, alchemical_rate, colour_rate = nil, nil, nil
     local total_rate = (joker_available and G.GAME.joker_rate or 0)
         + (planet_or_tarot_available and (G.GAME.tarot_rate + G.GAME.planet_rate) or 0)
         + (playing_available and playing_card_rate or 0)
@@ -953,19 +957,26 @@ function Reverie.create_card_for_cine_shop(area)
         {type = "Tag", val = tag_available and G.GAME.joker_rate or 0, available = tag_available},
         {type = "Crazy", val = crazy_pack_available and G.GAME.joker_rate or 0, available = crazy_pack_available},
     }
-    
+
     if has_oddity then
         oddity_rate = G.GAME.oddity_rate > 0 and G.GAME.oddity_rate or G.GAME.cached_oddity_rate or 0
         oddity_available = not is_forcing_card_set and not crazy_pack_available
         total_rate = total_rate + (oddity_available and oddity_rate or 0)
         table.insert(candidates, {type = "Oddity", val = oddity_available and oddity_rate or 0, available = oddity_available})
     end
-    
+
     if has_alchemical then
         alchemical_rate = Reverie.find_used_cine_or("Fool Metal Alchemist") and G.GAME.joker_rate or G.GAME.alchemical_rate or G.GAME.cached_alchemical_rate or 0
         alchemical_available = (Reverie.find_used_cine_or("Fool Metal Alchemist") or not is_forcing_card_set) and not crazy_pack_available
         total_rate = total_rate + (alchemical_available and alchemical_rate or 0)
         table.insert(candidates, {type = "Alchemical", val = alchemical_available and alchemical_rate or 0, available = alchemical_available})
+    end
+    
+    if has_colour then
+        colour_rate = Reverie.find_used_cine("Every Hue") and G.GAME.joker_rate or 0
+        colour_available = Reverie.find_used_cine("Every Hue") and not crazy_pack_available
+        total_rate = total_rate + (colour_available and colour_rate or 0)
+        table.insert(candidates, {type = "Colour", val = colour_available and colour_rate or 0, available = colour_available})
     end
 
     local polled_rate = pseudorandom(pseudoseed("cdt" .. G.GAME.round_resets.ante)) * total_rate
@@ -984,6 +995,10 @@ function Reverie.create_card_for_cine_shop(area)
 
     if has_alchemical then
         print("Alchemical Available: "..tostring(alchemical_available).." ("..(alchemical_available and alchemical_rate or 0)..")")
+    end
+
+    if has_colour then
+        print("Colour Available: "..tostring(colour_available).." ("..(colour_available and colour_rate or 0)..")")
     end
 
     print("Total Rate: "..total_rate..", Polled Rate: "..polled_rate)
@@ -1108,6 +1123,10 @@ function CardArea:emplace(card, location, stay_flipped)
         if heist then
             card.cost = math.max(1, math.floor(card.cost * (100 - G.P_CENTERS.c_gem_heist.config.extra) / 100))
             card.sell_cost = math.max(1, math.floor(card.cost / 2)) + (card.ability.extra_value or 0)
+        end
+
+        if Reverie.find_used_cine("Every Hue") and card.ability.set == "Colour" and card.ability.upgrade_rounds > 1 then
+            card.ability.partial_rounds_held = card.ability.upgrade_rounds * 0.5
         end
 
         if Reverie.find_used_cine("Adrifting") and self ~= G.pack_cards then
@@ -1948,7 +1967,8 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_eerie_inn" and context.any_card_destroyed)
         or (self.config.center.reward == "c_adrifting" and context.debuff_or_flipped_played)
         or (self.config.center.reward == "c_morsel" and context.joker_added and Reverie.is_food_joker(context.card.config.center_key))
-        or (self.config.center.reward == "c_alchemist" and context.using_consumeable and context.consumeable.ability.set == "Alchemical") then
+        or (self.config.center.reward == "c_alchemist" and context.using_consumeable and context.consumeable.ability.set == "Alchemical")
+        or (self.config.center.reward == "c_every_hue" and context.using_consumeable and context.consumeable.ability.set == "Colour") then
             return Reverie.progress_cine_quest(self)
         end
     end
