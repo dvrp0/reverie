@@ -611,29 +611,9 @@ function Reverie.create_crazy_random_card(area, excludes)
     end
 
     if target == "Joker" then
-        local cine_joker_types = {}
+        card = Reverie.create_special_joker(G.pack_cards)
 
-        if Reverie.find_used_cine("Morsel") then
-            table.insert(cine_joker_types, "Morsel")
-        end
-        if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
-            table.insert(cine_joker_types, "I Sing, I've No Shape")
-        end
-        if Reverie.find_used_cine("Radioactive") then
-            table.insert(cine_joker_types, "Radioactive")
-        end
-
-        if #cine_joker_types > 0 then
-            local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
-
-            if type == "Morsel" then
-                card = Reverie.create_morsel_card(G.pack_cards)
-            elseif type == "I Sing, I've No Shape" then
-                card = Reverie.create_i_sing_card(G.pack_cards)
-            elseif type == "Radioactive" then
-                card = Reverie.create_radioactive_card(G.pack_cards)
-            end
-        else
+        if not card then
             card = create_card(target, area, nil, nil, true, true, nil, "crazy_j")
         end
     elseif target == "Consumeables" then
@@ -701,9 +681,65 @@ function Reverie.create_i_sing_card(area)
     local force = pseudorandom_element(G.jokers.cards, pseudoseed("ising"))
     local card = create_card("Joker", area, nil, nil, nil, nil, force.config.center.key, "ising")
 
-    if Reverie.find_used_cine("Morsel") and Reverie.is_food_joker(force.config.center.key) then
-        card.ability.morseled = true
-        Reverie.double_ability(force.config.center.config, card.ability)
+    return card
+end
+
+function Reverie.create_special_joker(area)
+    local card = nil
+    local cine_joker_types = {}
+
+    if Reverie.find_used_cine("Morsel") then
+        table.insert(cine_joker_types, "Morsel")
+    end
+    if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
+        table.insert(cine_joker_types, "I Sing, I've No Shape")
+    end
+    if Reverie.find_used_cine("Radioactive") then
+        table.insert(cine_joker_types, "Radioactive")
+    end
+
+    if #cine_joker_types > 0 then
+        local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
+
+        if type == "Morsel" then
+            local available = Reverie.get_food_jokers()
+
+            if not next(find_joker("Showman")) then
+                for i, v in ipairs(available) do
+                    if next(find_joker(G.P_CENTERS[v].name)) then
+                        available[i] = nil
+                    end
+                end
+            end
+    
+            if next(available) == nil then
+                table.insert(available, "j_ice_cream")
+            end
+
+            local target = pseudorandom_element(available, pseudoseed("mor"))
+            card = create_card("Joker", area, nil, nil, nil, nil, target, "sel")
+        elseif type == "I Sing, I've No Shape" then
+            local force = pseudorandom_element(G.jokers.cards, pseudoseed("ising"))
+            card = create_card("Joker", area, nil, nil, nil, nil, force.config.center.key, "iveno")
+        elseif type == "Radioactive" then
+            local available = Reverie.get_fusion_materials()
+            local fallback = pseudorandom_element(available, pseudoseed("radio_fallback"))
+
+            if not next(find_joker("Showman")) then
+                for i, v in ipairs(available) do
+                    if next(find_joker(G.P_CENTERS[v].name)) then
+                        available[i] = nil
+                    end
+                end
+            end
+    
+            if next(available) == nil then
+                table.insert(available, fallback)
+            end
+
+            local target = pseudorandom_element(available, pseudoseed("radio"))
+            card = create_card("Joker", area, nil, nil, nil, nil, target, "active")
+        end
     end
 
     return card
@@ -768,8 +804,6 @@ function Reverie.create_morsel_card(area)
 
     local target = pseudorandom_element(available, pseudoseed("mor"))
     local card = create_card("Joker", area, nil, nil, nil, nil, target, "sel")
-    card.ability.morseled = true
-    Reverie.double_ability(G.P_CENTERS[target].config, card.ability)
 
     return card
 end
@@ -1054,34 +1088,12 @@ function Reverie.create_card_for_cine_shop(area)
             local card = nil
 
             if v.type == "Joker" then
-                local cine_joker_types = {}
-
-                if Reverie.find_used_cine("Morsel") then
-                    table.insert(cine_joker_types, "Morsel")
-                end
-                if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
-                    table.insert(cine_joker_types, "I Sing, I've No Shape")
-                end
-                if Reverie.find_used_cine("Radioactive") then
-                    table.insert(cine_joker_types, "Radioactive")
-                end
-
-                if #cine_joker_types > 0 then
-                    local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
-
-                    if type == "Morsel" then
-                        card = Reverie.create_morsel_card(area)
-                    elseif type == "I Sing, I've No Shape" then
-                        card = Reverie.create_i_sing_card(area)
-                    elseif type == "Radioactive" then
-                        card = Reverie.create_radioactive_card(area)
-                    end
-                end
+                card = Reverie.create_special_joker(area)
             elseif Reverie.find_used_cine("Poker Face") and (v.type == "Enhanced" or v.type == "Base") then
                 card = Reverie.create_poker_face_card(area)
             elseif Reverie.find_used_cine("Eerie Inn") and v.type == "Spectral" then
-                local poll = pseudorandom("cine_spectral_grade")
-                local grade = poll >= 0.93 and "mega" or poll >= 0.63 and "jumbo" or "normal"
+                local poll = pseudorandom("cine_spectral_size")
+                local grade = poll >= 0.95 and "mega" or poll >= 0.75 and "jumbo" or "normal"
                 local index = grade == "normal" and math.random(1, 2) or 1
 
                 card = Reverie.create_booster(area, G.P_CENTERS["p_spectral_"..grade.."_"..index])
@@ -1169,6 +1181,11 @@ function CardArea:emplace(card, location, stay_flipped)
         if heist then
             card.cost = math.max(1, math.floor(card.cost * (100 - G.P_CENTERS.c_gem_heist.config.extra) / 100))
             card.sell_cost = math.max(1, math.floor(card.cost / 2)) + (card.ability.extra_value or 0)
+        end
+
+        if Reverie.find_used_cine("Morsel") and Reverie.is_food_joker(card.config.center.key) then
+            card.ability.morseled = true
+            Reverie.double_ability(card.config.center.config, card.ability)
         end
 
         if Reverie.find_used_cine("Every Hue") and card.ability.set == "Colour" then
