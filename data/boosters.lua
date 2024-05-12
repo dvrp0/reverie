@@ -74,11 +74,12 @@ return {
             extra = 4,
             choose = 1,
             weights = {
-                ["Joker"] = 0.3,
-                ["Consumeables"] = 0.25,
-                ["Playing"] = 0.3,
-                ["Tag"] = 0.1,
+                ["Joker"] = 1,
+                ["Consumeables"] = 0.75,
+                ["Playing"] = 1,
+                ["Tag"] = 0.15,
                 ["Voucher"] = 0.05,
+                ["Cine"] = 0.01
             }
         },
         kind = "Crazy",

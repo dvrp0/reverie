@@ -592,7 +592,7 @@ function Reverie.create_crazy_random_card(area, excludes)
     local weights = {}
 
     for k, v in pairs(G.P_CENTERS.p_crazy_lucky_1.config.weights) do
-        weights[k] = v * (k == "Tag" and tag_or_die and 5 or 1)
+        weights[k] = v * (k == "Tag" and tag_or_die and 3 or 1)
     end
 
     for _, v in pairs(weights) do
@@ -636,10 +636,21 @@ function Reverie.create_crazy_random_card(area, excludes)
             local type = pseudorandom_element(consumable_types, pseudoseed("cine_consumable"))
             card = create_card(type, area, nil, nil, true, true, nil, "crazy_consumable")
         else
-            card = create_card(target, area, nil, nil, true, true, nil, "crazy_c")
+            local pool, pool_key = get_current_pool(target, nil, nil, "crazy_c")
+            local center = pseudorandom_element(pool, pseudoseed(pool_key))
+            local it = 1
+
+            while center == "UNAVAILABLE" or (G.P_CENTERS[center].set == "Cine" and not G.P_CENTERS[center].reward) do
+                it = it + 1
+                center = pseudorandom_element(pool, pseudoseed(pool_key.."_resample"..it))
+            end
+
+            card = create_card(target, area, nil, nil, true, true, center, "crazy_c")
         end
     elseif target == "Voucher" then
         card = create_card(target, area, nil, nil, true, true, nil, "crazy_v")
+    elseif target == "Cine" then
+        card = create_card(target, area, nil, nil, true, true, nil, "crazy_cine")
     elseif target == "Playing" then
         if Reverie.find_used_cine("Poker Face") then
             card = Reverie.create_poker_face_card(G.pack_cards)
