@@ -211,8 +211,9 @@ return {
                 name = "Every Hue",
                 text = {
                     "During this shop,",
-                    "only halfway progressed",
-                    "{C:colourcard}Colour{} cards appear",
+                    "only {C:colourcard}Colour{} cards that",
+                    "already have {C:attention}#1# rounds{}",
+                    "appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
             }
@@ -588,7 +589,7 @@ return {
                 name = "모든 빛깔의",
                 text = {
                     "이번 상점 동안에는",
-                    "절반만큼 진행된",
+                    "{C:attention}#1# 라운드{}가 추가된",
                     "{C:colourcard}색상{} 카드만 나타납니다",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }

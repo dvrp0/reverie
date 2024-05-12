@@ -1125,8 +1125,15 @@ function CardArea:emplace(card, location, stay_flipped)
             card.sell_cost = math.max(1, math.floor(card.cost / 2)) + (card.ability.extra_value or 0)
         end
 
-        if Reverie.find_used_cine("Every Hue") and card.ability.set == "Colour" and card.ability.upgrade_rounds > 1 then
-            card.ability.partial_rounds_held = card.ability.upgrade_rounds * 0.5
+        if Reverie.find_used_cine("Every Hue") and card.ability.set == "Colour" then
+            local rounds = G.P_CENTERS.c_every_hue.config.extra.rounds
+            card.ability.extra = math.floor(rounds / card.ability.upgrade_rounds)
+            card.ability.partial_rounds_held = rounds % card.ability.upgrade_rounds
+
+            if card.ability.name == "Yellow" and card.ability.extra > 0 then
+                card.ability.extra_value = card.ability.extra_value + (8 * card.ability.extra)
+                card:set_cost()
+            end
         end
 
         if Reverie.find_used_cine("Adrifting") and self ~= G.pack_cards then
@@ -2219,6 +2226,10 @@ function G.FUNCS.play_cards_from_highlighted(e)
 end
 
 function Reverie.set_card_back(card)
+    if not card then
+        return
+    end
+
     if card.ability.set == "Alchemical" then
         card.children.back.atlas = G.ASSET_ATLAS[G.GAME.selected_back.atlas or "centers"]
         card.children.back:set_sprite_pos(G.GAME.selected_back.pos)

@@ -350,6 +350,7 @@ return {
         name = "Every Hue",
         config = {
             extra = {
+                rounds = 3,
                 kind = {
                     "p_colour_"
                 }
