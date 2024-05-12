@@ -4,10 +4,7 @@ return {
         name = "I Sing, I've No Shape",
         config = {
             extra = {
-                mult = 3,
-                kind = {
-                    "p_buffoon_"
-                }
+                mult = 5
             }
         },
         cost = 4,
@@ -24,7 +21,7 @@ return {
         config = {
             extra = {
                 chips = 2,
-                blinds = 2
+                blinds = 3
             }
         },
         cost = 4,
