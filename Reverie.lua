@@ -619,6 +619,9 @@ function Reverie.create_crazy_random_card(area, excludes)
         if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
             table.insert(cine_joker_types, "I Sing, I've No Shape")
         end
+        if Reverie.find_used_cine("Radioactive") then
+            table.insert(cine_joker_types, "Radioactive")
+        end
 
         if #cine_joker_types > 0 then
             local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
@@ -627,6 +630,8 @@ function Reverie.create_crazy_random_card(area, excludes)
                 card = Reverie.create_morsel_card(G.pack_cards)
             elseif type == "I Sing, I've No Shape" then
                 card = Reverie.create_i_sing_card(G.pack_cards)
+            elseif type == "Radioactive" then
+                card = Reverie.create_radioactive_card(G.pack_cards)
             end
         else
             card = create_card(target, area, nil, nil, true, true, nil, "crazy_j")
@@ -769,6 +774,42 @@ function Reverie.create_morsel_card(area)
     return card
 end
 
+function Reverie.get_fusion_materials()
+    local materials = {}
+
+    for _, v in ipairs(FusionJokers.fusions) do
+        for _, vv in ipairs(v.jokers) do
+            table.insert(materials, vv.name)
+        end
+    end
+
+    return materials
+end
+
+function Reverie.create_radioactive_card(area)
+    local available = Reverie.get_fusion_materials()
+    print(inspect(available))
+    local fallback = pseudorandom_element(available, pseudoseed("radio_fallback"))
+
+    if not next(find_joker("Showman")) then
+        for i, v in ipairs(available) do
+            if next(find_joker(G.P_CENTERS[v].name)) then
+                available[i] = nil
+            end
+        end
+    end
+
+    if next(available) == nil then
+        table.insert(available, fallback)
+    end
+
+    local target = pseudorandom_element(available, pseudoseed("radio"))
+    print(target)
+    local card = create_card("Joker", area, nil, nil, nil, nil, target, "active")
+
+    return card
+end
+
 function Reverie.is_cine_or_reverie(card)
     return card.ability.set == "Cine" or (card.ability.set == "Spectral" and card.ability.name == "Reverie")
 end
@@ -811,7 +852,7 @@ end
 
 function Reverie.is_cine_forcing_card_set()
     return Reverie.find_used_cine_or("I Sing, I've No Shape", "Crazy Lucky", "Tag or Die", "Let It Moon",
-        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist", "Every Hue")
+        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist", "Every Hue", "Radioactive")
 end
 
 function Reverie.get_used_cine_kinds()
@@ -928,7 +969,7 @@ function Reverie.create_card_for_cine_shop(area)
     local has_colour = SMODS.findModByID("MoreFluff")
 
     local crazy_pack_available = Reverie.find_used_cine("Crazy Lucky")
-    local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel") or not is_forcing_card_set) and not crazy_pack_available
+    local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel", "Radioactive") or not is_forcing_card_set) and not crazy_pack_available
     local planet_or_tarot_available = (Reverie.find_used_cine("Let It Moon") or not is_forcing_card_set) and not crazy_pack_available
     local playing_available = (Reverie.find_used_cine("Poker Face") or not is_forcing_card_set) and not crazy_pack_available
     local spectral_available = (Reverie.find_used_cine("Eerie Inn") or not is_forcing_card_set) and not crazy_pack_available
@@ -1021,6 +1062,9 @@ function Reverie.create_card_for_cine_shop(area)
                 if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
                     table.insert(cine_joker_types, "I Sing, I've No Shape")
                 end
+                if Reverie.find_used_cine("Radioactive") then
+                    table.insert(cine_joker_types, "Radioactive")
+                end
 
                 if #cine_joker_types > 0 then
                     local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
@@ -1029,6 +1073,8 @@ function Reverie.create_card_for_cine_shop(area)
                         card = Reverie.create_morsel_card(area)
                     elseif type == "I Sing, I've No Shape" then
                         card = Reverie.create_i_sing_card(area)
+                    elseif type == "Radioactive" then
+                        card = Reverie.create_radioactive_card(area)
                     end
                 end
             elseif Reverie.find_used_cine("Poker Face") and (v.type == "Enhanced" or v.type == "Base") then

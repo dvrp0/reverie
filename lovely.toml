@@ -404,6 +404,9 @@ end
 if Reverie.find_used_cine("I Sing, I've No Shape") and G.jokers.cards and G.jokers.cards[1] then
     table.insert(cine_joker_types, "I Sing, I've No Shape")
 end
+if Reverie.find_used_cine("Radioactive") then
+    table.insert(cine_joker_types, "Radioactive")
+end
 
 if #cine_joker_types > 0 then
     local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
@@ -412,6 +415,8 @@ if #cine_joker_types > 0 then
         card = Reverie.create_morsel_card(G.pack_cards)
     elseif type == "I Sing, I've No Shape" then
         card = Reverie.create_i_sing_card(G.pack_cards)
+    elseif type == "Radioactive" then
+        card = Reverie.create_radioactive_card(G.pack_cards)
     end
 
     goto reverie_skip_create_card

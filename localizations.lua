@@ -216,6 +216,25 @@ return {
                     "appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
+            },
+            c_radioactive_quest = {
+                name = "Exchange Coupon",
+                text = {
+                    "Converts to {C:cine}Radioactive",
+                    "after getting {C:attention}#1#",
+                    "{C:attention}Fusion Joker",
+                    "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_radioactive = {
+                name = "Radioactive",
+                text = {
+                    "During this shop,",
+                    "only {C:attention}Joker{}s that",
+                    "can be used in {C:attention}Fusions",
+                    "appear",
+                    "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
+                }
             }
         },
         Joker = {
@@ -591,6 +610,23 @@ return {
                     "이번 상점 동안에는",
                     "{C:attention}#1# 라운드{}가 추가된",
                     "{C:colourcard}색상{} 카드만 나타납니다",
+                    "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
+                }
+            },
+            c_radioactive_quest = {
+                name = "교환권",
+                text = {
+                    "{C:colourcard}융합{} 조커를 {C:attention}#1#{}장 획득하면",
+                    "{C:cine}라디오액티브{}로 바뀝니다",
+                    "{C:inactive}(현재 {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_radioactive = {
+                name = "라디오액티브",
+                text = {
+                    "이번 상점 동안에는",
+                    "{C:attention}융합{}에 사용될 수 있는",
+                    "{C:attention}조커{}만 나타납니다",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             }

@@ -378,5 +378,38 @@ return {
         },
         dependency = "MoreFluff",
         discovered = false
+    },
+    c_radioactive = {
+        order = 26,
+        name = "Radioactive",
+        config = {
+            extra = {
+                kind = {
+                    "p_buffoon_"
+                }
+            }
+        },
+        cost = 4,
+        pos = {
+            x = 6,
+            y = 2
+        },
+        dependency = "FusionJokers",
+        discovered = false
+    },
+    c_radioactive_quest = {
+        order = 25,
+        name = "Radioactive Exchange Coupon",
+        reward = "c_radioactive",
+        config = {
+            extra = 1
+        },
+        cost = 4,
+        pos = {
+            x = 7,
+            y = 2
+        },
+        dependency = "FusionJokers",
+        discovered = false
     }
 }
