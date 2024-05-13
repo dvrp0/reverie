@@ -540,7 +540,7 @@ pattern = '''if card.ability.consumeable then'''
 position = "after"
 payload = '''
 local is_cine = Reverie.is_cine_or_reverie(card)
-if G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK or (is_pack_card and is_cine) then
+if is_pack_card and (G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK or is_cine) then
     (is_cine and G.cine_quests or G.consumeables):emplace(card)
     card:add_to_deck()
     play_sound('card1', 0.8, 0.6)
