@@ -4,7 +4,7 @@ return {
         name = "I Sing, I've No Shape",
         config = {
             extra = {
-                mult = 5
+                add = 20
             }
         },
         cost = 4,

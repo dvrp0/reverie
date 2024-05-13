@@ -1251,13 +1251,21 @@ function calculate_reroll_cost(skip_increment)
         return
     end
 
+    local add = 0
+
     for _, v in ipairs(G.GAME.current_round.used_cine) do
         local center = Reverie.find_cine_center(v)
 
-        if center and type(center.config.extra) == "table" and center.config.extra.mult then
-            G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
+        if center and type(center.config.extra) == "table" then
+            if center.config.extra.mult then
+                G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
+            elseif center.config.extra.add then
+                add = add + center.config.extra.add
+            end
         end
     end
+
+    G.GAME.current_round.reroll_cost = G.GAME.current_round.reroll_cost + add
 end
 
 function Reverie.set_cine_banned_keys()

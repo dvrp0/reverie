@@ -15,7 +15,7 @@ return {
                 text = {
                     "During this shop,",
                     "only owned {C:attention}Jokers{} appear",
-                    "{C:red}X#1#{} reroll cost"
+                    "{C:red}+$#1#{} reroll cost"
                 }
             },
             c_unseen_quest = {
@@ -438,7 +438,7 @@ return {
                     "이번 상점 동안에는",
                     "보유 중인 {C:attention}조커{}만",
                     "나타납니다",
-                    "새로고침 비용 {C:red}#1#{}배"
+                    "새로고침 비용 {C:red}+$#1#"
                 }
             },
             c_unseen_quest = {
