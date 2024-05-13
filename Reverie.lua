@@ -528,7 +528,13 @@ function Reverie.end_cine_shop()
 
     if G.GAME.current_round.cine_temporary_consumeable_limit then
         G.GAME.current_round.cine_temporary_consumeable_limit = nil
-        G.consumeables.config.card_limit = math.max(0, G.consumeables.config.card_limit - 2)
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 2
+    end
+
+    if G.GAME.current_round.cine_temporary_shop_card_limit then
+        G.GAME.current_round.cine_temporary_shop_card_limit = nil
+        G.GAME.shop.joker_max = G.GAME.shop.joker_max - 1
+        G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
     end
 
     G.GAME.current_round.max_boosters = nil
@@ -1327,6 +1333,33 @@ function Reverie.ban_modded_consumables()
     end
 end
 
+function Reverie.adjust_shop_width()
+    if G.GAME.current_round.used_cine then
+        local jokers = G.GAME.shop.joker_max
+        G.shop_jokers.T.w = jokers * 1.02 * G.CARD_W * (jokers > 4 and 4 / jokers or 1)
+
+        if G.shop then
+            G.shop:recalculate()
+        end
+    end
+end
+
+local change_shop_size_ref = change_shop_size
+function change_shop_size(mod)
+    change_shop_size_ref(mod)
+
+    Reverie.adjust_shop_width()
+end
+
+local uidef_shop_ref = G.UIDEF.shop
+function G.UIDEF.shop()
+    local shop = uidef_shop_ref()
+
+    Reverie.adjust_shop_width()
+
+    return shop
+end
+
 local use_consumeable_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
     if not self.debuff then
@@ -1367,10 +1400,18 @@ function Card:use_consumeable(area, copier)
                     calculate_reroll_cost(true)
                 end
 
-                if is_reverie or self.ability.name == "Fool Metal Alchemist" then
+                if (is_reverie or self.ability.name == "Fool Metal Alchemist") and not G.GAME.current_round.cine_temporary_consumeable_limit then
                     G.GAME.current_round.cine_temporary_consumeable_limit = true
                     G.consumeables.config.card_limit = G.consumeables.config.card_limit + 2
                 end
+
+                -- if (is_reverie or self.ability.name == "Let It Moon") and not G.GAME.current_round.cine_temporary_shop_card_limit then
+                --     G.GAME.current_round.cine_temporary_shop_card_limit = true
+                --     G.GAME.shop.joker_max = G.GAME.shop.joker_max + 1
+                --     G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
+
+                --     Reverie.adjust_shop_width()
+                -- end
 
                 Reverie.ban_modded_consumables()
                 Reverie.set_cine_banned_keys()
