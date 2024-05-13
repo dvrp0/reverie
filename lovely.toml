@@ -100,7 +100,7 @@ elseif _c.set == "Cine" then
     else
         if _c.name == "Tag or Die" then
             loc_vars = {_c.config.extra.cost}
-        elseif _c.name == "I Sing, I've No Shape" or _c.name == "The Unseen" or _c.name == "Let It Moon" or _c.name == "Eerie Inn" then
+        elseif _c.name == "I Sing, I've No Shape" or _c.name == "The Unseen" or _c.name == "Eerie Inn" then
             loc_vars = {_c.config.extra.mult}
         elseif _c.name == "Crazy Lucky" then
             info_queue[#info_queue+1] = G.P_CENTERS.p_crazy_lucky_1

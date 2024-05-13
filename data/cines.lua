@@ -159,7 +159,6 @@ return {
         name = "Let It Moon",
         config = {
             extra = {
-                mult = 0.5,
                 kind = {
                     "p_arcana_",
                     "p_celestial_"

@@ -103,7 +103,6 @@ return {
                     "During this shop,",
                     "only {C:planet}Planet{} and",
                     "{C:tarot}Tarot{} cards appear",
-                    "{C:attention}X#1#{} reroll cost",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
             },
@@ -505,7 +504,6 @@ return {
                     "이번 상점 동안에는",
                     "{C:planet}행성{}과 {C:tarot}타로{} 카드만",
                     "나타납니다",
-                    "새로고침 비용 {C:attention}#1#{}배",
                     "{s:0.8,C:attention}부스터 팩 {s:0.8}새로고침"
                 }
             },

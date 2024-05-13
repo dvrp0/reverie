@@ -528,7 +528,7 @@ function Reverie.end_cine_shop()
 
     if G.GAME.current_round.cine_temporary_consumeable_limit then
         G.GAME.current_round.cine_temporary_consumeable_limit = nil
-        G.consumeables.config.card_limit = G.consumeables.config.card_limit - 2
+        G.consumeables.config.card_limit = G.consumeables.config.card_limit - G.P_CENTERS.c_alchemist.config.extra.slot
     end
 
     if G.GAME.current_round.cine_temporary_shop_card_limit then
@@ -1237,17 +1237,16 @@ local calculate_reroll_cost_ref = calculate_reroll_cost
 function calculate_reroll_cost(skip_increment)
     calculate_reroll_cost_ref(skip_increment)
 
-    if Reverie.find_used_cine_or("I Sing, I've No Shape", "The Unseen", "Let It Moon", "Eerie Inn") then
-        local cines = {
-            Reverie.find_used_cine("I Sing, I've No Shape") or -999,
-            Reverie.find_used_cine("The Unseen") or -999,
-            Reverie.find_used_cine("Let It Moon") or -999,
-            Reverie.find_used_cine("Eerie Inn") or -999
-        }
-        table.sort(cines)
+    if not G.GAME.current_round.used_cine then
+        return
+    end
 
-        local center = Reverie.find_cine_center(G.GAME.current_round.used_cine[cines[#cines]])
-        G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
+    for _, v in ipairs(G.GAME.current_round.used_cine) do
+        local center = Reverie.find_cine_center(v)
+
+        if center and type(center.config.extra) == "table" and center.config.extra.mult then
+            G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
+        end
     end
 end
 
@@ -1380,13 +1379,10 @@ function Card:use_consumeable(area, copier)
                     table.insert(G.GAME.current_round.used_cine, "Reverie")
 
                     for _, v in pairs(G.P_CENTERS) do
-                        if v.set == "Cine" and v.name ~= "Let It Moon" then
+                        if v.set == "Cine" then
                             table.insert(G.GAME.current_round.used_cine, v.name)
                         end
                     end
-
-                    -- For prioritizing X0.5 reroll cost over The Unseen/I've No Shape
-                    table.insert(G.GAME.current_round.used_cine, "Let It Moon")
                 elseif G.GAME.selected_back.name == "Filmstrip Deck" then
                     table.insert(G.GAME.current_round.used_cine, self.ability.name)
                 elseif not Reverie.find_used_cine(self.ability.name) then
@@ -1395,14 +1391,13 @@ function Card:use_consumeable(area, copier)
                     }
                 end
 
-                if is_reverie or self.ability.name == "I Sing, I've No Shape" or self.ability.name == "The Unseen"
-                or self.ability.name == "Let It Moon" or self.ability.name == "Eerie Inn" then
+                if is_reverie or self.ability.extra.mult then
                     calculate_reroll_cost(true)
                 end
 
                 if (is_reverie or self.ability.name == "Fool Metal Alchemist") and not G.GAME.current_round.cine_temporary_consumeable_limit then
                     G.GAME.current_round.cine_temporary_consumeable_limit = true
-                    G.consumeables.config.card_limit = G.consumeables.config.card_limit + 2
+                    G.consumeables.config.card_limit = G.consumeables.config.card_limit + G.P_CENTERS.c_alchemist.config.extra.slot
                 end
 
                 -- if (is_reverie or self.ability.name == "Let It Moon") and not G.GAME.current_round.cine_temporary_shop_card_limit then
