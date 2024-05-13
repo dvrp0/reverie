@@ -298,46 +298,19 @@ pattern = '''G.GAME.pack_choices = self.config.center.config.choose or 1'''
 position = "before"
 payload = '''
 if self.ability.name:find("Tag") then
-    G.STATE = G.STATES.TAG_PACK
+    G.STATE = G.STATES.BUFFOON_PACK
+    G.GAME.in_reverie_pack = "Tag"
     G.GAME.pack_size = self.ability.extra
 elseif self.ability.name == "Pack" then
-    G.STATE = G.STATES.CRAZY_PACK
+    G.STATE = G.STATES.BUFFOON_PACK
+    G.GAME.in_reverie_pack = "Crazy"
     G.GAME.pack_size = self.ability.extra
 elseif self.ability.name:find("Film") then
-    G.STATE = G.STATES.FILM_PACK
+    G.STATE = G.STATES.BUFFOON_PACK
+    G.GAME.in_reverie_pack = "Film"
     G.GAME.pack_size = self.ability.extra
 end
 '''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "functions/common_events.lua"
-pattern = '''ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Planet, G.C.BLACK, 0.9))'''
-position = "after"
-payload = '''
-elseif state == G.STATES.TAG_PACK then
-    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Tag, G.C.BLACK, 0.9))
-elseif state == G.STATES.CRAZY_PACK then
-    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))
-elseif state == G.STATES.FILM_PACK then
-    ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))'''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "functions/common_events.lua"
-pattern = '''ease_background_colour{new_colour = G.C.BLACK, contrast = 3}'''
-position = "after"
-payload = '''
-elseif state == G.STATES.TAG_PACK then
-    ease_background_colour{new_colour = G.C.SECONDARY_SET.Tag, special_colour = G.C.BLACK, contrast = 2}
-elseif state == G.STATES.CRAZY_PACK then
-    ease_background_colour{new_colour = darken(G.C.RED, 0.2), special_colour = darken(G.C.SECONDARY_SET.Cine, 0.4), tertiary_colour = darken(G.C.BLACK, 0.2), contrast = 3}
-elseif state == G.STATES.FILM_PACK then
-    ease_background_colour{new_colour = G.C.SECONDARY_SET.Cine, special_colour = G.C.BLACK, contrast = 2}'''
 match_indent = true
 overwrite = false
 
@@ -402,58 +375,6 @@ if card then
     goto reverie_skip_create_card
 end
 '''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "cardarea.lua"
-pattern = '''(self.config.type == 'hand' and ({[G.STATES.SHOP]=1, [G.STATES.TAROT_PACK]=1, [G.STATES.SPECTRAL_PACK]=1, [G.STATES.STANDARD_PACK]=1,[G.STATES.BUFFOON_PACK]=1,[G.STATES.PLANET_PACK]=1, [G.STATES.ROUND_EVAL]=1, [G.STATES.BLIND_SELECT]=1})[state]) or'''
-position = "after"
-payload = '''
-(self.config.type == 'hand' and ({[G.STATES.TAG_PACK]=1, [G.STATES.CRAZY_PACK]=1, [G.STATES.FILM_PACK]=1})[state]) or'''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "game.lua"
-pattern = '''if self.STATE == self.STATES.GAME_OVER then'''
-position = "before"
-payload = '''
-if self.STATE == self.STATES.TAG_PACK then
-    self:update_tag_pack(dt)
-end
-
-if self.STATE == self.STATES.CRAZY_PACK then
-    self:update_crazy_pack(dt)
-end
-
-if self.STATE == self.STATES.FILM_PACK then
-    self:update_film_pack(dt)
-end
-'''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "functions/button_callbacks.lua"
-pattern = '''(G.STATE == G.STATES.BUFFOON_PACK and G.STATES.BUFFOON_PACK) or'''
-position = "after"
-payload = '''
-(G.STATE == G.STATES.TAG_PACK and G.STATES.TAG_PACK) or
-(G.STATE == G.STATES.CRAZY_PACK and G.STATES.CRAZY_PACK) or
-(G.STATE == G.STATES.FILM_PACK and G.STATES.FILM_PACK) or'''
-match_indent = true
-overwrite = false
-
-[[patches]]
-[patches.pattern]
-target = "functions/button_callbacks.lua"
-pattern = '''prev_state == G.STATES.SPECTRAL_PACK or prev_state == G.STATES.STANDARD_PACK or'''
-position = "after"
-payload = '''prev_state == G.STATES.TAG_PACK or prev_state == G.STATES.CRAZY_PACK or prev_state == G.STATES.FILM_PACK or'''
 match_indent = true
 overwrite = false
 
@@ -540,7 +461,7 @@ pattern = '''if card.ability.consumeable then'''
 position = "after"
 payload = '''
 local is_cine = Reverie.is_cine_or_reverie(card)
-if is_pack_card and (G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK or is_cine) then
+if is_pack_card and (G.GAME.in_reverie_pack or is_cine) then
     (is_cine and G.cine_quests or G.consumeables):emplace(card)
     card:add_to_deck()
     play_sound('card1', 0.8, 0.6)
@@ -569,7 +490,7 @@ target = "card.lua"
 pattern = '''local bot_dynatext = nil'''
 position = "after"
 payload = '''
-if G.STATE == G.STATES.CRAZY_PACK then
+if G.GAME.in_reverie_pack == "Crazy" then
     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
             top_dynatext = DynaText({string = localize{type = 'name_text', set = self.config.center.set, key = self.config.center.key}, colours = {G.C.WHITE}, rotate = 1,shadow = true, bump = true,float=true, scale = 0.9, pop_in = 0.6/G.SPEEDFACTOR, pop_in_rate = 1.5*G.SPEEDFACTOR})
             bot_dynatext = DynaText({string = localize('k_redeemed_ex'), colours = {G.C.WHITE}, rotate = 2,shadow = true, bump = true,float=true, scale = 0.9, pop_in = 1.4/G.SPEEDFACTOR, pop_in_rate = 1.5*G.SPEEDFACTOR, pitch_shift = 0.25})

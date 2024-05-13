@@ -99,11 +99,6 @@ function SMODS.INIT.Reverie()
     local function inject_boosters()
         Reverie.boosters = NFS.load(mod.path.."/data/boosters.lua")()
 
-        local states = table_length(G.STATES)
-        G.STATES.TAG_PACK = states + 1
-        G.STATES.CRAZY_PACK = states + 2
-        G.STATES.FILM_PACK = states + 3
-
         local boosters_length = table_length(G.P_CENTER_POOLS.Booster)
         for k, v in pairs(Reverie.boosters) do
             v.order = v.order + boosters_length
@@ -1672,6 +1667,19 @@ function Reverie.create_UIBox_film_pack()
     return t
 end
 
+local update_buffoon_pack_ref = Game.update_buffoon_pack
+function Game:update_buffoon_pack(dt)
+    if G.GAME.in_reverie_pack == "Tag" then
+        self:update_tag_pack(dt)
+    elseif G.GAME.in_reverie_pack == "Crazy" then
+        self:update_crazy_pack(dt)
+    elseif G.GAME.in_reverie_pack == "Film" then
+        self:update_film_pack(dt)
+    else
+        update_buffoon_pack_ref(self, dt)
+    end
+end
+
 function Game:update_tag_pack(dt)
     if self.buttons then self.buttons:remove(); self.buttons = nil end
     if self.shop then G.shop.alignment.offset.y = G.ROOM.T.y+11 end
@@ -1688,7 +1696,7 @@ function Game:update_tag_pack(dt)
                 }
                 G.booster_pack.alignment.offset.y = -2.2
                         G.ROOM.jiggle = G.ROOM.jiggle + 3
-                ease_background_colour_blind(G.STATES.TAG_PACK)
+                ease_background_colour_blind(G.STATES.BUFFOON_PACK)
                 G.E_MANAGER:add_event(Event({
                     trigger = 'immediate',
                     func = function()
@@ -1737,7 +1745,7 @@ function Game:update_crazy_pack(dt)
                 }
                 G.booster_pack.alignment.offset.y = -2.2
                         G.ROOM.jiggle = G.ROOM.jiggle + 3
-                ease_background_colour_blind(G.STATES.CRAZY_PACK)
+                ease_background_colour_blind(G.STATES.BUFFOON_PACK)
                 G.E_MANAGER:add_event(Event({
                     trigger = 'immediate',
                     func = function()
@@ -1782,7 +1790,7 @@ function Game:update_film_pack(dt)
                 }
                 G.booster_pack.alignment.offset.y = -2.2
                         G.ROOM.jiggle = G.ROOM.jiggle + 3
-                ease_background_colour_blind(G.STATES.FILM_PACK)
+                ease_background_colour_blind(G.STATES.BUFFOON_PACK)
                 G.E_MANAGER:add_event(Event({
                     trigger = 'immediate',
                     func = function()
@@ -1806,8 +1814,7 @@ local can_skip_booster_ref = G.FUNCS.can_skip_booster
 function G.FUNCS.can_skip_booster(e)
     can_skip_booster_ref(e)
 
-    if G.pack_cards and G.pack_cards.cards and G.pack_cards.cards[1]
-    and (G.STATE == G.STATES.TAG_PACK or G.STATE == G.STATES.CRAZY_PACK or G.STATE == G.STATES.FILM_PACK) then
+    if G.pack_cards and G.pack_cards.cards and G.pack_cards.cards[1] and G.GAME.in_reverie_pack then
         e.config.colour = G.C.GREY
         e.config.button = "skip_booster"
     end
@@ -1952,7 +1959,7 @@ end
 
 local check_use_ref = Card.check_use
 function Card:check_use()
-    if G.STATE == G.STATES.CRAZY_PACK then
+    if G.GAME.in_reverie_pack == "Crazy" then
         return nil
     end
 
@@ -2453,4 +2460,39 @@ end
 
 function Reverie.halve_cine_quest_goal(value)
     return math.max(1, math.floor(value * G.P_CENTERS.v_megaphone.config.extra))
+end
+
+local ease_background_colour_blind_ref = ease_background_colour_blind
+function ease_background_colour_blind(state, blind_override)
+    ease_background_colour_blind_ref(state, blind_override)
+
+    if state == G.STATES.BUFFOON_PACK and G.GAME.in_reverie_pack then
+        if G.GAME.in_reverie_pack == "Tag" then
+            ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Tag, G.C.BLACK, 0.9))
+            ease_background_colour{new_colour = G.C.SECONDARY_SET.Tag, special_colour = G.C.BLACK, contrast = 2}
+        elseif G.GAME.in_reverie_pack == "Crazy" then
+            ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))
+            ease_background_colour{new_colour = darken(G.C.RED, 0.2), special_colour = darken(G.C.SECONDARY_SET.Cine, 0.4), tertiary_colour = darken(G.C.BLACK, 0.2), contrast = 3}
+        elseif G.GAME.in_reverie_pack == "Film" then
+            ease_colour(G.C.DYN_UI.MAIN, mix_colours(G.C.SECONDARY_SET.Cine, G.C.BLACK, 0.9))
+            ease_background_colour{new_colour = G.C.SECONDARY_SET.Cine, special_colour = G.C.BLACK, contrast = 2}
+        end
+    end
+end
+
+local end_consumeable_ref = G.FUNCS.end_consumeable
+function G.FUNCS.end_consumeable(e, delayfac)
+    end_consumeable_ref(e, delayfac)
+
+    G.E_MANAGER:add_event(Event({
+        trigger = "after",
+        delay = 0.2 * (delayfac or 1),
+        func = function()
+            if G.GAME.in_reverie_pack then
+                G.GAME.in_reverie_pack = nil
+            end
+
+            return true
+        end
+    }))
 end
