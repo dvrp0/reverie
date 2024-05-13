@@ -12,7 +12,7 @@
 Reverie = {}
 Reverie.cine_color = HEX("9db95f")
 Reverie.flipped_voucher_pos = {
-    x = 0,
+    x = 1,
     y = 0
 }
 Reverie.flipped_tag_pos = {
@@ -213,6 +213,19 @@ function SMODS.INIT.Reverie()
         end
     end
 
+    local function inject_vouchers()
+        Reverie.vouchers = NFS.load(mod.path.."/data/vouchers.lua")()
+
+        for _, v in ipairs(Reverie.vouchers) do
+            local slug = "v_"..v.slug
+
+            SMODS.Voucher:new(v.name, v.slug, v.config, v.pos, Reverie.lang.descriptions.Voucher[slug], v.cost, v.unlocked, v.discovered,
+                true, v.requires, "cine_vouchers"):register()
+
+            SMODS.Vouchers[slug].redeem = v.redeem
+        end
+    end
+
     apply_localization()
     inject_jokers()
     inject_boosters()
@@ -220,6 +233,7 @@ function SMODS.INIT.Reverie()
     inject_tags()
     inject_backs()
     inject_spectrals()
+    inject_vouchers()
 
     SMODS.SAVE_UNLOCKS()
 
@@ -234,6 +248,7 @@ function SMODS.INIT.Reverie()
         inject_tags()
         inject_backs()
         inject_spectrals()
+        inject_vouchers()
 
         SMODS.SAVE_UNLOCKS()
     end
@@ -533,7 +548,7 @@ function Reverie.end_cine_shop()
 
     if G.GAME.current_round.cine_temporary_shop_card_limit then
         G.GAME.current_round.cine_temporary_shop_card_limit = nil
-        G.GAME.shop.joker_max = G.GAME.shop.joker_max - 1
+        G.GAME.shop.joker_max = G.GAME.shop.joker_max - G.P_CENTERS.v_script.config.extra
         G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
     end
 
@@ -1391,22 +1406,20 @@ function Card:use_consumeable(area, copier)
                     }
                 end
 
-                if is_reverie or self.ability.extra.mult then
-                    calculate_reroll_cost(true)
-                end
+                calculate_reroll_cost(true)
 
                 if (is_reverie or self.ability.name == "Fool Metal Alchemist") and not G.GAME.current_round.cine_temporary_consumeable_limit then
                     G.GAME.current_round.cine_temporary_consumeable_limit = true
                     G.consumeables.config.card_limit = G.consumeables.config.card_limit + G.P_CENTERS.c_alchemist.config.extra.slot
                 end
 
-                -- if (is_reverie or self.ability.name == "Let It Moon") and not G.GAME.current_round.cine_temporary_shop_card_limit then
-                --     G.GAME.current_round.cine_temporary_shop_card_limit = true
-                --     G.GAME.shop.joker_max = G.GAME.shop.joker_max + 1
-                --     G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
+                if G.GAME.used_vouchers.v_script and not G.GAME.current_round.cine_temporary_shop_card_limit then
+                    G.GAME.current_round.cine_temporary_shop_card_limit = true
+                    G.GAME.shop.joker_max = G.GAME.shop.joker_max + G.P_CENTERS.v_script.config.extra
+                    G.shop_jokers.config.card_limit = G.GAME.shop.joker_max
 
-                --     Reverie.adjust_shop_width()
-                -- end
+                    Reverie.adjust_shop_width()
+                end
 
                 Reverie.ban_modded_consumables()
                 Reverie.set_cine_banned_keys()
@@ -2029,13 +2042,26 @@ function Card:set_ability(center, initial, delay_sprites)
     set_ability_ref(self, center, initial, delay_sprites)
 
     if self.ability.set == "Cine" and self.config.center.reward then
+        local halve = G.GAME.used_vouchers.v_megaphone
         self.ability.progress = 0
 
         if self.config.center.reward == "c_ive_no_shape" then
+            if halve then
+                self.ability.extra.blinds = Reverie.halve_cine_quest_goal(self.ability.extra.blinds)
+            end
+
             self.ability.progress_goal = self.ability.extra.blinds
         elseif self.config.center.reward == "c_unseen" then
+            if halve then
+                self.ability.extra.rounds = Reverie.halve_cine_quest_goal(self.ability.extra.rounds)
+            end
+
             self.ability.progress_goal = self.ability.extra.rounds
         else
+            if halve then
+                self.ability.extra = Reverie.halve_cine_quest_goal(self.ability.extra)
+            end
+
             self.ability.progress_goal = self.ability.extra
         end
     end
@@ -2118,59 +2144,63 @@ function Reverie.progress_cine_quest(card)
     end
 
     if card.ability.progress == card.ability.progress_goal then
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                local percent = 1.15 - (1 - 0.999) / (1 - 0.998) * 0.3
-                G.E_MANAGER:add_event(Event({
-                    trigger = "after",
-                    delay = 0.15,
-                    func = function()
-                        card:flip()
-                        play_sound("card1", percent)
-                        card:juice_up(0.3, 0.3)
-
-                        return true
-                    end
-                }))
-                delay(0.2)
-                G.E_MANAGER:add_event(Event({
-                    trigger = "after",
-                    delay = 0.1,
-                    func = function()
-                        G.GAME.used_jokers[card.config.center_key] = nil
-                        card.config.card = {}
-                        card:set_ability(G.P_CENTERS[card.config.center.reward], true)
-
-                        if not card.config.center.discovered then
-                            discover_card(card.config.center)
-                        end
-
-                        return true
-                    end
-                }))
-
-                percent = 0.85 + (1 - 0.999) / (1 - 0.998) * 0.3
-                G.E_MANAGER:add_event(Event({
-                    trigger = "after",
-                    delay = 0.15,
-                    func = function()
-                        card:flip()
-                        play_sound("tarot2", percent, 0.6)
-                        card:juice_up(0.3, 0.3)
-
-                        return true
-                    end
-                }))
-
-                return true
-            end
-        }))
+        Reverie.complete_cine_quest(card)
     else
         card_eval_status_text(card, "extra", nil, nil, nil, {
             message = card.ability.progress.."/"..card.ability.progress_goal,
             colour = G.C.SECONDARY_SET.Cine
         })
     end
+end
+
+function Reverie.complete_cine_quest(card)
+    G.E_MANAGER:add_event(Event({
+        func = function()
+            local percent = 1.15 - (1 - 0.999) / (1 - 0.998) * 0.3
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0.15,
+                func = function()
+                    card:flip()
+                    play_sound("card1", percent)
+                    card:juice_up(0.3, 0.3)
+
+                    return true
+                end
+            }))
+            delay(0.2)
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0.1,
+                func = function()
+                    G.GAME.used_jokers[card.config.center_key] = nil
+                    card.config.card = {}
+                    card:set_ability(G.P_CENTERS[card.config.center.reward], true)
+
+                    if not card.config.center.discovered then
+                        discover_card(card.config.center)
+                    end
+
+                    return true
+                end
+            }))
+
+            percent = 0.85 + (1 - 0.999) / (1 - 0.998) * 0.3
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0.15,
+                func = function()
+                    card:flip()
+                    play_sound("tarot2", percent, 0.6)
+                    card:juice_up(0.3, 0.3)
+
+                    return true
+                end
+            }))
+
+            return true
+        end
+    }))
 end
 
 local tag_init_ref = Tag.init
@@ -2419,4 +2449,8 @@ function Back:trigger_effect(args)
     end
 
     return trigger_effect_ref(self, args)
+end
+
+function Reverie.halve_cine_quest_goal(value)
+    return math.max(1, math.floor(value * G.P_CENTERS.v_megaphone.config.extra))
 end

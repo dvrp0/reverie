@@ -303,6 +303,25 @@ return {
                 }
             }
         },
+        Voucher = {
+            v_script = {
+                name = "Script",
+                text = {
+                    "{C:attention}+#1#{} card slot",
+                    "available in shop",
+                    "while {C:cine}Cine{} card is",
+                    "active"
+                }
+            },
+            v_megaphone = {
+                name = "Megaphone",
+                text = {
+                    "Requirements of",
+                    "{C:cine}Exchange Coupons{} are",
+                    "halved"
+                }
+            }
+        },
         Other = {
             p_tag_normal = {
                 name = "Tag Pack",
@@ -692,6 +711,23 @@ return {
                     "이번 상점에",
                     "모든 {C:cine,E:1}영화 카드{}를",
                     "적용합니다"
+                }
+            }
+        },
+        Voucher = {
+            v_script = {
+                name = "대사집",
+                text = {
+                    "{C:cine}영화{} 카드가 활성화된 동안",
+                    "상점의 카드 판매 슬롯이",
+                    "{C:attention}+#1#{}개 증가합니다"
+                }
+            },
+            v_megaphone = {
+                name = "확성기",
+                text = {
+                    "{C:cine}교환권{} 달성 목표가",
+                    "절반으로 줄어듭니다"
                 }
             }
         },

@@ -1,9 +1,15 @@
-local function audience_redeem(center_table)
-    if center_table.name == "Audience" then
+local function megaphone_redeem(center_table)
+    if center_table.name == "Megaphone" and G.cine_quests then
         G.E_MANAGER:add_event(Event({
             func = function()
-                if G.cine_quests then
-                    G.cine_quests.config.card_limit = G.cine_quests.config.card_limit + 1
+                for _, v in ipairs(G.cine_quests.cards) do
+                    if v.ability.progress then
+                        v.ability.progress_goal = Reverie.halve_cine_quest_goal(v.ability.progress_goal)
+
+                        if v.ability.progress >= v.ability.progress_goal then
+                            Reverie.complete_cine_quest(v)
+                        end
+                    end
                 end
 
                 return true
@@ -12,12 +18,13 @@ local function audience_redeem(center_table)
     end
 end
 
-return {
-    v_audience = {
+local vouchers = {
+    {
+        slug = "script",
         order = 1,
-        name = "Audience",
+        name = "Script",
         config = {
-            extra = 25
+            extra = 1
         },
         cost = 10,
         pos = {
@@ -25,14 +32,17 @@ return {
             y = 0
         },
         unlocked = true,
-        discovered = false,
-        redeem = audience_redeem
+        discovered = false
     },
-    v_virtuoso = {
+    {
+        slug = "megaphone",
         order = 2,
-        name = "Virtuoso",
+        name = "Megaphone",
         requires = {
-            "v_audience"
+            "v_script"
+        },
+        config = {
+            extra = 0.5
         },
         cost = 10,
         pos = {
@@ -40,6 +50,11 @@ return {
             y = 1
         },
         unlocked = true,
-        discovered = false
+        discovered = false,
+        redeem = megaphone_redeem
     }
 }
+
+table.sort(vouchers, function (a, b) return a.order < b.order end)
+
+return vouchers

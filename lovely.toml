@@ -145,7 +145,7 @@ target = "functions/common_events.lua"
 pattern = '''elseif _c.name == "Clearance Sale" or _c.name == "Liquidation" then loc_vars = {_c.config.extra}'''
 position = "after"
 payload = '''
-elseif _c.name == "Audience" then loc_vars = {_c.config.extra}
+elseif _c.name == "Script" then loc_vars = {_c.config.extra}
 '''
 match_indent = true
 overwrite = false
