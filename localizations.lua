@@ -716,7 +716,7 @@ return {
         },
         Voucher = {
             v_script = {
-                name = "대사집",
+                name = "각본",
                 text = {
                     "{C:cine}영화{} 카드가 활성화된 동안",
                     "상점의 카드 판매 슬롯이",
