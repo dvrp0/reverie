@@ -228,7 +228,7 @@ return {
                 name = "Radioactive",
                 text = {
                     "During this shop,",
-                    "only {C:attention}Joker{}s that",
+                    "only {C:attention}Jokers{} that",
                     "can be used in {C:attention}Fusions",
                     "appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"

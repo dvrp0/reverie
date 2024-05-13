@@ -2085,7 +2085,8 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_adrifting" and context.debuff_or_flipped_played)
         or (self.config.center.reward == "c_morsel" and context.joker_added and Reverie.is_food_joker(context.card.config.center_key))
         or (self.config.center.reward == "c_alchemist" and context.using_consumeable and context.consumeable.ability.set == "Alchemical")
-        or (self.config.center.reward == "c_every_hue" and context.using_consumeable and context.consumeable.ability.set == "Colour") then
+        or (self.config.center.reward == "c_every_hue" and context.using_consumeable and context.consumeable.ability.set == "Colour")
+        or (self.config.center.reward == "c_radioactive" and context.joker_added and context.card.config.center.rarity == 5) then
             return Reverie.progress_cine_quest(self)
         end
     end
