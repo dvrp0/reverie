@@ -860,6 +860,18 @@ function Reverie.morselize_UI(card)
             end
         end
     end
+
+    table.insert(card.ability_UIBox_table.info, 1, {})
+    localize{
+        type = "other",
+        key = "morseled",
+        nodes = card.ability_UIBox_table.info[1]
+    }
+    card.ability_UIBox_table.info[1].name = localize{
+        type = 'name_text',
+        key = "morseled",
+        set = "Other"
+    }
 end
 
 function Reverie.create_morsel_card(area)

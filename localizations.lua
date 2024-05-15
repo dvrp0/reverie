@@ -429,7 +429,13 @@ return {
                     "unseeded run to",
                     "learn what it does"
                 }
-            }
+            },
+            morseled = {
+                name = "Morsel",
+                text = {
+                    "Ability is {C:attention}doubled"
+                }
+            },
         }
     },
     misc = {
@@ -825,6 +831,13 @@ return {
                     "런에서 이 카드를",
                     "구매하거나 사용하여",
                     "기능을 알아보세요",
+                }
+            },
+            morseled = {
+                name = "식탁의 길이",
+                text = {
+                    "모든 능력치가",
+                    "{C:attention}두 배{}로 증가했습니다"
                 }
             },
         }
