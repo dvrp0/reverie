@@ -780,7 +780,7 @@ function Reverie.create_poker_face_card(area)
 end
 
 function Reverie.get_food_jokers()
-    return {
+    local foods = {
         G.GAME.pool_flags.gros_michel_extinct and "j_cavendish" or "j_gros_michel",
         "j_ice_cream",
         "j_turtle_bean",
@@ -790,6 +790,26 @@ function Reverie.get_food_jokers()
         "j_selzer",
         "j_egg"
     }
+
+    if SMODS.INIT.MoreFluff then
+        table.insert(foods, "j_mf_lollipop")
+        table.insert(foods, "j_mf_goldencarrot")
+        table.insert(foods, "j_mf_tonersoup")
+        table.insert(foods, "j_mf_teacup")
+    end
+
+    if SMODS.INIT.MtlJokers then
+        table.insert(foods, "j_cherry")
+    end
+    
+    if SMODS.INIT.Ortalab then
+        table.insert(foods, G.GAME.pool_flags.taliaferro_extinct and "j_royal_gala" or "j_taliaferro")
+        table.insert(foods, "j_fine_wine")
+        table.insert(foods, "j_mystery_soda")
+        table.insert(foods, "j_popcorn_bag")
+    end
+
+    return foods
 end
 
 function Reverie.is_food_joker(key)
@@ -810,6 +830,34 @@ function Reverie.double_ability(origin, new)
             end
         elseif type(v) == "table" then
             Reverie.double_ability(v, new[k])
+        end
+    end
+end
+
+function Reverie.morselize_UI(card)
+    local alternative = G.localization.descriptions.Joker[card.config.center_key.."_morsel_alternative"]
+    if alternative then
+        local temp_main = {}
+        local loc_vars = {}
+    
+        if card.ability.name == "Fine Wine" then
+            loc_vars = {card.ability.extra.discards}
+        elseif card.ability.name == "Golden Carrot" then
+            loc_vars = {nil, 2}
+        end
+    
+        localize{
+            type = "descriptions",
+            key = card.config.center_key.."_morsel_alternative",
+            set = card.ability.set,
+            nodes = temp_main,
+            vars = loc_vars
+        }
+    
+        for i, v in ipairs(alternative.text) do
+            if v ~= "." then
+                card.ability_UIBox_table.main[i] = temp_main[i]
+            end
         end
     end
 end
@@ -2132,17 +2180,64 @@ function Card:calculate_joker(context)
         end
     end
 
-    if self.ability.set == "Joker" and self.ability.name == "Diet Cola" and self.ability.morseled and context.selling_self then
-        G.E_MANAGER:add_event(Event({
-            func = (function()
-                add_tag(Tag("tag_double"))
-                play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
-                play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
+    if self.ability.set == "Joker" and self.ability.morseled then
+        if self.ability.name == "Diet Cola" and context.selling_self then
+            G.E_MANAGER:add_event(Event({
+                func = (function()
+                    add_tag(Tag("tag_double"))
+                    play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
+                    play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
 
-                return true
-            end)
-        }))
-        delay(0.5)
+                    return true
+                end)
+            }))
+            delay(0.5)
+        elseif self.ability.name == "Mystery Soda" and context.selling_self then
+            local available = {}
+            local targets = {}
+
+            for k, v in pairs(G.P_TAGS) do
+                table.insert(available,k)
+            end
+
+            for i = 1, 2 do
+                targets[i] = pseudorandom_element(available, pseudoseed("mystery_soda"))
+            end
+
+            G.E_MANAGER:add_event(Event({
+                func = (function()
+                    add_tag(Tag(targets[1], false, "Big"))
+                    add_tag(Tag(targets[2], false, "Big"))
+                    play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
+                    play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
+
+                    return true
+                end)
+            }))
+            delay(0.5)
+        elseif self.ability.name == "Fine Wine" and context.setting_blind and not context.getting_sliced and not context.blueprint then
+            self.ability.extra.discards = self.ability.extra.discards + 1
+        elseif self.ability.name == "Golden Carrot" and context.after and context.cardarea == G.jokers and not context.blueprint then
+            if not self.gone and self.ability.extra - 1 > 0 then
+                self.ability.extra = self.ability.extra - 1
+            end
+        elseif self.ability.name == "I Sip Toner Soup" and context.cardarea == G.jokers and context.before then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    trigger = "before",
+                    func = function()
+                        local card = create_card("Tarot", G.consumeables, nil, nil, nil, nil, nil, "sup")
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                        G.GAME.consumeable_buffer = 0
+
+                        return true
+                    end
+                }))
+                delay(0.5)
+            end
+        end
     end
 
     return calculate_joker_ref(self, context)

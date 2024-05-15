@@ -237,11 +237,33 @@ return {
         },
         Joker = {
             j_diet_cola_morsel_alternative = {
-                name = "Diet Cola",
                 text = {
-                    "Sell this card to",
-                    "create two free",
-                    "{C:attention}#1#s"
+                    ".", -- Blank strings are ignored, so putting random character to preserve index info
+                    "create two free"
+                }
+            },
+            j_fine_wine_morsel_alternative = {
+                text = {
+                    "{C:red}+#1#{} discards, gains {C:red}+2{} discard",
+                }
+            },
+            j_mystery_soda_morsel_alternative = {
+                text = {
+                    ".",
+                    ".",
+                    "four free {C:attention}tags"
+                }
+            },
+            j_mf_goldencarrot_morsel_alternative = {
+                text = {
+                    ".",
+                    ".",
+                    "{C:money}-$#2#{} per hand played"
+                }
+            },
+            j_mf_tonersoup_morsel_alternative = {
+                text = {
+                    "Create two {C:tarot}Tarot{} cards"
                 }
             },
             j_dynamic_film = {
@@ -407,7 +429,7 @@ return {
                     "unseeded run to",
                     "learn what it does"
                 }
-            },
+            }
         }
     },
     misc = {
@@ -648,10 +670,9 @@ return {
         },
         Joker = {
             j_diet_cola_morsel_alternative = {
-                name = "다이어트 콜라",
                 text = {
-                    "이 카드를 판매하면",
-                    "{C:attention}#1#{}를",
+                    ".",
+                    ".",
                     "두 개 생성합니다",
                 }
             },

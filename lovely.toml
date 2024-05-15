@@ -612,29 +612,16 @@ end
 [[patches]]
 [patches.pattern]
 target = "card.lua"
-pattern = '''if self.sticker then loc_vars = loc_vars or {}; loc_vars.sticker=self.sticker end'''
+pattern = '''self.ability_UIBox_table = self:generate_UIBox_ability_table()'''
 position = "after"
 payload = '''
-if self.ability.set == "Joker" and self.ability.name == "Diet Cola" and self.ability.morseled then
-    loc_vars.morsel_alternative = self.config.center_key.."_morsel_alternative"
+
+if self.ability.morseled then
+    Reverie.morselize_UI(self)
 end
 '''
 match_indent = true
 overwrite = false
-
-[[patches]]
-[patches.regex]
-target = "functions/common_events.lua"
-pattern = '''elseif _c\.set == .Joker. then(\n.*?)*?.+?specific_vars\.sticker.+?(\n.*?)*?(?<indent>[ \t]*)localize\{type = .descriptions.+?\n'''
-position = "after"
-line_prepend = "$indent"
-payload = '''
-if specific_vars and specific_vars.morsel_alternative then
-    full_UI_table.main = {}
-    localize{type = 'descriptions', key = specific_vars.morsel_alternative, set = _c.set, nodes = full_UI_table.main, vars = specific_vars or {}}
-end
-
-'''
 
 [[patches]]
 [patches.regex]
