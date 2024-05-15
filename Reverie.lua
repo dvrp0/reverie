@@ -1439,10 +1439,6 @@ end
 
 local use_consumeable_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
-    if not self.debuff then
-        self.ability.consumable_used = true
-    end
-
     if Reverie.is_cine_or_reverie(self) then
         local is_reverie = self.ability.name == "Reverie"
 
@@ -2444,9 +2440,17 @@ function Card:add_to_deck(from_debuff)
     end
 end
 
+local sell_card_ref = Card.sell_card
+function Card:sell_card()
+    self.ability.not_destroyed = true
+
+    sell_card_ref(self)
+end
+
 local remove_from_deck_ref = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
-    local flag = (self.added_to_deck and not self.ability.consumable_used and not self.ability.sold) or (G.playing_cards and self.playing_card) and G.jokers
+    print(self.ability.not_destroyed)
+    local flag = (self.added_to_deck and not self.ability.not_destroyed) or (G.playing_cards and self.playing_card)
 
     remove_from_deck_ref(self, from_debuff)
 

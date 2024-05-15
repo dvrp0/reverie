@@ -733,3 +733,14 @@ end
 '''
 match_indent = true
 overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''e.config.ref_table:use_consumeable(area)'''
+position = "after"
+payload = '''
+e.config.ref_table.ability.not_destroyed = true
+'''
+match_indent = true
+overwrite = false
