@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://dvrp-balatro-mods.pages.dev/reverie.png" style="width: 400px; margin-bottom: 1rem;" />
+  <img src="https://dvrp-balatro-mods.pages.dev/images/logos/reverie/3.png" style="width: 400px; margin-bottom: 1rem;" />
 
   # Reverie 🎥
 
