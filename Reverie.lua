@@ -2066,24 +2066,8 @@ function Card:set_ability(center, initial, delay_sprites)
         local halve = G.GAME.used_vouchers.v_megaphone
         self.ability.progress = 0
 
-        if self.config.center.reward == "c_ive_no_shape" then
-            if halve then
-                self.ability.extra.blinds = Reverie.halve_cine_quest_goal(self.ability.extra.blinds)
-            end
-
-            self.ability.progress_goal = self.ability.extra.blinds
-        elseif self.config.center.reward == "c_unseen" then
-            if halve then
-                self.ability.extra.rounds = Reverie.halve_cine_quest_goal(self.ability.extra.rounds)
-            end
-
-            self.ability.progress_goal = self.ability.extra.rounds
-        else
-            if halve then
-                self.ability.extra = Reverie.halve_cine_quest_goal(self.ability.extra)
-            end
-
-            self.ability.progress_goal = self.ability.extra
+        if G.GAME.used_vouchers.v_megaphone then
+            self.ability.extra.goal = Reverie.halve_cine_quest_goal(self.ability.extra.goal)
         end
     end
 
@@ -2211,11 +2195,11 @@ function Reverie.progress_cine_quest(card)
         })
     end
 
-    if card.ability.progress == card.ability.progress_goal then
+    if card.ability.progress == card.ability.extra.goal then
         Reverie.complete_cine_quest(card)
     else
         card_eval_status_text(card, "extra", nil, nil, nil, {
-            message = card.ability.progress.."/"..card.ability.progress_goal,
+            message = card.ability.progress.."/"..card.ability.extra.goal,
             colour = G.C.SECONDARY_SET.Cine
         })
     end

@@ -64,11 +64,11 @@ position = "before"
 payload = '''
 elseif self.ability.set == "Cine" and self.ability.progress then
     if self.config.center.reward == "c_unseen" then
-        loc_vars = {self.ability.extra.slots, self.ability.extra.rounds, self.ability.progress}
+        loc_vars = {self.ability.extra.slots, self.ability.extra.goal, self.ability.progress}
     elseif self.config.center.reward == "c_ive_no_shape" then
-        loc_vars = {self.ability.extra.chips, self.ability.extra.blinds, self.ability.progress}
+        loc_vars = {self.ability.extra.chips, self.ability.extra.goal, self.ability.progress}
     else
-        loc_vars = {self.ability.extra, self.ability.progress}
+        loc_vars = {self.ability.extra.goal, self.ability.progress}
     end
 '''
 match_indent = true

@@ -21,7 +21,7 @@ return {
         config = {
             extra = {
                 chips = 2,
-                blinds = 3
+                goal = 3
             }
         },
         cost = 4,
@@ -53,7 +53,7 @@ return {
         config = {
             extra = {
                 slots = 1,
-                rounds = 5
+                goal = 5
             }
         },
         cost = 4,
@@ -81,7 +81,9 @@ return {
         name = "Gem Heist Exchange Coupon",
         reward = "c_gem_heist",
         config = {
-            extra = 2
+            extra = {
+                goal = 2
+            }
         },
         cost = 4,
         pos = {
@@ -113,7 +115,9 @@ return {
         name = "Crazy Lucky Exchange Coupon",
         reward = "c_crazy_lucky",
         config = {
-            extra = 6
+            extra = {
+                goal = 6
+            }
         },
         cost = 4,
         pos = {
@@ -145,7 +149,9 @@ return {
         name = "Tag or Die Exchange Coupon",
         reward = "c_tag_or_die",
         config = {
-            extra = 4
+            extra = {
+                goal = 4
+            }
         },
         cost = 4,
         pos = {
@@ -177,7 +183,9 @@ return {
         name = "Let It Moon Exchange Coupon",
         reward = "c_let_it_moon",
         config = {
-            extra = 10
+            extra = {
+                goal = 10
+            }
         },
         cost = 4,
         pos = {
@@ -208,7 +216,9 @@ return {
         name = "Poker Face Exchange Coupon",
         reward = "c_poker_face",
         config = {
-            extra = 8
+            extra = {
+                goal = 8
+            }
         },
         cost = 4,
         pos = {
@@ -240,7 +250,9 @@ return {
         name = "Eerie Inn Exchange Coupon",
         reward = "c_eerie_inn",
         config = {
-            extra = 5
+            extra = {
+                goal = 5
+            }
         },
         cost = 4,
         pos = {
@@ -267,7 +279,9 @@ return {
         name = "Adrifting Exchange Coupon",
         reward = "c_adrifting",
         config = {
-            extra = 5
+            extra = {
+                goal = 5
+            }
         },
         cost = 4,
         pos = {
@@ -298,7 +312,9 @@ return {
         name = "Morsel Exchange Coupon",
         reward = "c_morsel",
         config = {
-            extra = 2
+            extra = {
+                goal = 2
+            }
         },
         cost = 4,
         pos = {
@@ -331,7 +347,9 @@ return {
         name = "Fool Metal Alchemist Exchange Coupon",
         reward = "c_alchemist",
         config = {
-            extra = 5
+            extra = {
+                goal = 5
+            }
         },
         cost = 4,
         pos = {
@@ -365,7 +383,9 @@ return {
         name = "Every Hue Exchange Coupon",
         reward = "c_every_hue",
         config = {
-            extra = 2
+            extra = {
+                goal = 2
+            }
         },
         cost = 4,
         pos = {
@@ -398,7 +418,9 @@ return {
         name = "Radioactive Exchange Coupon",
         reward = "c_radioactive",
         config = {
-            extra = 1
+            extra = {
+                goal = 1
+            }
         },
         cost = 4,
         pos = {

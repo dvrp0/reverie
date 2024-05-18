@@ -4,9 +4,9 @@ local function megaphone_redeem(center_table)
             func = function()
                 for _, v in ipairs(G.cine_quests.cards) do
                     if v.ability.progress then
-                        v.ability.progress_goal = Reverie.halve_cine_quest_goal(v.ability.progress_goal)
+                        v.ability.extra.goal = Reverie.halve_cine_quest_goal(v.ability.extra.goal)
 
-                        if v.ability.progress >= v.ability.progress_goal then
+                        if v.ability.progress >= v.ability.extra.goal then
                             Reverie.complete_cine_quest(v)
                         end
                     end
