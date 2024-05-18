@@ -704,13 +704,6 @@ function Reverie.create_crazy_random_card(area, excludes)
     return card
 end
 
-function Reverie.create_i_sing_card(area)
-    local force = pseudorandom_element(G.jokers.cards, pseudoseed("ising"))
-    local card = create_card("Joker", area, nil, nil, nil, nil, force.config.center.key, "ising")
-
-    return card
-end
-
 function Reverie.create_special_joker(area)
     local card = nil
     local cine_joker_types = {}
@@ -759,7 +752,7 @@ function Reverie.create_special_joker(area)
                     end
                 end
             end
-    
+
             if next(available) == nil then
                 table.insert(available, fallback)
             end
@@ -874,61 +867,18 @@ function Reverie.morselize_UI(card)
     }
 end
 
-function Reverie.create_morsel_card(area)
-    local available = Reverie.get_food_jokers()
-
-    if not next(find_joker("Showman")) then
-        for i, v in ipairs(available) do
-            if next(find_joker(G.P_CENTERS[v].name)) then
-                available[i] = nil
-            end
-        end
-    end
-
-    if next(available) == nil then
-        table.insert(available, "j_ice_cream")
-    end
-
-    local target = pseudorandom_element(available, pseudoseed("mor"))
-    local card = create_card("Joker", area, nil, nil, nil, nil, target, "sel")
-
-    return card
-end
-
 function Reverie.get_fusion_materials()
     local materials = {}
 
     for _, v in ipairs(FusionJokers.fusions) do
         for _, vv in ipairs(v.jokers) do
-            table.insert(materials, vv.name)
-        end
-    end
-
-    return materials
-end
-
-function Reverie.create_radioactive_card(area)
-    local available = Reverie.get_fusion_materials()
-    print(inspect(available))
-    local fallback = pseudorandom_element(available, pseudoseed("radio_fallback"))
-
-    if not next(find_joker("Showman")) then
-        for i, v in ipairs(available) do
-            if next(find_joker(G.P_CENTERS[v].name)) then
-                available[i] = nil
+            if G.P_CENTERS[vv.name] then
+                table.insert(materials, vv.name)
             end
         end
     end
 
-    if next(available) == nil then
-        table.insert(available, fallback)
-    end
-
-    local target = pseudorandom_element(available, pseudoseed("radio"))
-    print(target)
-    local card = create_card("Joker", area, nil, nil, nil, nil, target, "active")
-
-    return card
+    return materials
 end
 
 function Reverie.is_cine_or_reverie(card)
