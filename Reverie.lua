@@ -1417,7 +1417,8 @@ function Card:use_consumeable(area, copier)
 
                 calculate_reroll_cost(true)
 
-                if (is_reverie or self.ability.name == "Fool Metal Alchemist") and not G.GAME.current_round.cine_temporary_consumeable_limit then
+                if (is_reverie or self.ability.name == "Fool Metal Alchemist") and G.P_CENTERS.c_alchemist
+                and not G.GAME.current_round.cine_temporary_consumeable_limit then
                     G.GAME.current_round.cine_temporary_consumeable_limit = true
                     G.consumeables.config.card_limit = G.consumeables.config.card_limit + G.P_CENTERS.c_alchemist.config.extra.slot
                 end
