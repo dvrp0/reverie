@@ -1163,8 +1163,9 @@ function Reverie.create_card_for_cine_shop(area)
                 }))
             end
 
-            if not Reverie.find_used_cine("Gem Heist") and (v.type == "Base" or v.type == "Enhanced")
-            and G.GAME.used_vouchers["v_illusion"] and pseudorandom(pseudoseed("illusion")) > 0.8 then
+            if not Reverie.find_used_cine("Gem Heist") and (not Reverie.find_used_cine("Poker Face") or not card.edition)
+            and (v.type == "Base" or v.type == "Enhanced") and G.GAME.used_vouchers.v_illusion
+            and pseudorandom(pseudoseed("illusion")) > 0.8 then
                 local edition_poll = pseudorandom(pseudoseed("illusion"))
                 local edition = {}
                 if edition_poll > 1 - 0.15 then
