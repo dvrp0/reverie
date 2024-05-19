@@ -2432,7 +2432,7 @@ function Reverie.set_card_back(card)
         return
     end
 
-    if card.ability.set == "Alchemical" then
+    if card.ability.set == "Alchemical" or card.ability.set == "Default" or card.ability.set == "Enhanced" then
         card.children.back.atlas = G.ASSET_ATLAS[G.GAME.selected_back.atlas or "centers"]
         card.children.back:set_sprite_pos(G.GAME.selected_back.pos)
     elseif card.ability.set == "Voucher" then
