@@ -1362,13 +1362,11 @@ function Reverie.ban_modded_consumables()
 end
 
 function Reverie.adjust_shop_width()
-    if G.GAME.current_round.used_cine then
-        local jokers = G.GAME.shop.joker_max
-        G.shop_jokers.T.w = jokers * 1.02 * G.CARD_W * (jokers > 4 and 4 / jokers or 1)
+    local jokers = G.GAME.shop.joker_max
+    G.shop_jokers.T.w = jokers * 1.02 * G.CARD_W * (jokers > 4 and 4 / jokers or 1)
 
-        if G.shop then
-            G.shop:recalculate()
-        end
+    if G.shop then
+        G.shop:recalculate()
     end
 end
 
@@ -2429,7 +2427,7 @@ function G.FUNCS.play_cards_from_highlighted(e)
 end
 
 function Reverie.set_card_back(card)
-    if not card then
+    if not card or G.STAGE ~= G.STAGES.RUN then
         return
     end
 
