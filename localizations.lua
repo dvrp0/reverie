@@ -344,6 +344,14 @@ return {
                 }
             }
         },
+        Edition = {
+            e_negative_cine = {
+                name = "Negative",
+                text = {
+                    "{C:dark_edition}+#1#{} Cine slot"
+                }
+            }
+        },
         Other = {
             p_tag_normal = {
                 name = "Tag Pack",
@@ -755,6 +763,14 @@ return {
                 text = {
                     "{C:cine}교환권{} 달성 목표가",
                     "절반으로 줄어듭니다"
+                }
+            }
+        },
+        Edition = {
+            e_negative_cine = {
+                name = "네거티브",
+                text = {
+                    "영화 슬롯 {C:dark_edition}+#1#{}개"
                 }
             }
         },

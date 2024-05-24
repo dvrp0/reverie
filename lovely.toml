@@ -76,6 +76,19 @@ overwrite = false
 
 [[patches]]
 [patches.pattern]
+target = "functions/common_events.lua"
+pattern = '''for _, v in ipairs(info_queue) do'''
+position = "after"
+payload = '''
+if v.key == "e_negative_consumable" and (_c.set == "Cine" or _c.set == "Cine_Quest") then
+    v.key = "e_negative_cine"
+end
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
 target = "tag.lua"
 pattern = '''tag_sprite.ability_UIBox_table = generate_card_ui(G.P_TAGS[self.key], nil, loc_vars, (self.hide_ability) and 'Undiscovered' or 'Tag', nil, (self.hide_ability))'''
 position = "before"
