@@ -2385,13 +2385,19 @@ function Card:sell_card()
     sell_card_ref(self)
 end
 
-local remove_from_deck_ref = Card.remove_from_deck
-function Card:remove_from_deck(from_debuff)
+local card_remove_ref = Card.remove
+function Card:remove()
     local destroyed = (self.added_to_deck and not self.ability.not_destroyed) or (G.playing_cards and self.playing_card)
-    local on_game_area = self.area == G.jokers or self.area == G.consumeables or self.area == G.cine_quests
-    or self.area == G.pack_cards or self.area == G.play or self.area == G.hand
+    local on_game_area = nil
 
-    remove_from_deck_ref(self, from_debuff)
+    for k, v in pairs(G) do
+        if type(v) == "table" and v.is and v:is(CardArea) and self.area == v then
+            on_game_area = true
+            break
+        end
+    end
+
+    card_remove_ref(self)
 
     if G.cine_quests and destroyed and on_game_area then
         for _, v in ipairs(G.cine_quests.cards) do
