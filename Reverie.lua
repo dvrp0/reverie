@@ -2110,7 +2110,11 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_crazy_lucky" and context.open_booster)
         or (self.config.center.reward == "c_tag_or_die" and context.skip_blind)
         or (self.config.center.reward == "c_let_it_moon" and context.using_consumeable
-            and (context.consumeable.ability.set == "Tarot" or context.consumeable.ability.set == "Planet"))
+            and (context.consumeable.ability.set == "Tarot"
+                or context.consumeable.ability.set == "Tarot_dx"
+                or context.consumeable.ability.set == "Tarot_cu"
+                or context.consumeable.ability.set == "Planet"
+                or context.consumeable.ability.set == "Planet_dx"))
         or (self.config.center.reward == "c_poker_face" and context.enhancing_card)
         or (self.config.center.reward == "c_eerie_inn" and context.any_card_destroyed)
         or (self.config.center.reward == "c_adrifting" and context.debuff_or_flipped_played)
