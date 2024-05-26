@@ -2383,12 +2383,13 @@ end
 
 local remove_from_deck_ref = Card.remove_from_deck
 function Card:remove_from_deck(from_debuff)
-    print(self.ability.not_destroyed)
-    local flag = (self.added_to_deck and not self.ability.not_destroyed) or (G.playing_cards and self.playing_card)
+    local destroyed = (self.added_to_deck and not self.ability.not_destroyed) or (G.playing_cards and self.playing_card)
+    local on_game_area = self.area == G.jokers or self.area == G.consumeables or self.area == G.cine_quests
+    or self.area == G.pack_cards or self.area == G.play or self.area == G.hand
 
     remove_from_deck_ref(self, from_debuff)
 
-    if G.cine_quests and flag then
+    if G.cine_quests and destroyed and on_game_area then
         for _, v in ipairs(G.cine_quests.cards) do
             if v ~= self then
                 v:calculate_joker({
