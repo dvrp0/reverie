@@ -56,6 +56,10 @@ end
 
 function SMODS.INIT.Reverie()
     local mod = SMODS.findModByID("Reverie")
+    local lovely_installed, _ = pcall(require, "lovely")
+
+    assert(lovely_installed, "Lovely is not installed")
+    assert(mod.path == "Mods/Reverie/", "Reverie mod folder is nested")
 
     SMODS.Sprite:new("Cine", mod.path, "cines.png", 71, 95, "asset_atli"):register()
     SMODS.Sprite:new("cine_jokers", mod.path, "jokers.png", 71, 95, "asset_atli"):register()
@@ -1362,6 +1366,10 @@ function Reverie.ban_modded_consumables()
 end
 
 function Reverie.adjust_shop_width()
+    if not G.shop_jokers then
+        return
+    end
+
     local jokers = G.GAME.shop.joker_max
     G.shop_jokers.T.w = jokers * 1.02 * G.CARD_W * (jokers > 4 and 4 / jokers or 1)
 
