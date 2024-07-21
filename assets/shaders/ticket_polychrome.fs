@@ -98,10 +98,10 @@ vec4 effect( vec4 colour, Image texture, vec2 texture_coords, vec2 screen_coords
 {
     vec4 tex = Texel(texture, texture_coords);
 	vec2 uv = (((texture_coords)*(image_details)) - texture_details.xy*texture_details.ba)/texture_details.ba;
-    vec4 border_1 = vec4(255 / 255., 244 / 255., 180 / 255., 1.);
-    vec4 border_2 = vec4(189 / 255., 188 / 255., 132 / 255., 1.);
-    vec4 border_3 = vec4(171 / 255., 170 / 255., 120 / 255., 1.);
-    vec4 joker_black = vec4(79 / 255., 99 / 255., 103 / 255., 1.);
+    vec4 border_1 = vec4(255. / 255., 244. / 255., 180. / 255., 1.);
+    vec4 border_2 = vec4(189. / 255., 188. / 255., 132. / 255., 1.);
+    vec4 border_3 = vec4(171. / 255., 170. / 255., 120. / 255., 1.);
+    vec4 joker_black = vec4(79. / 255., 99. / 255., 103. / 255., 1.);
 
     if (any(greaterThan(abs(tex.rgb - border_1.rgb), vec3(0.1))) &&
         any(greaterThan(abs(tex.rgb - border_2.rgb), vec3(0.1))) &&
