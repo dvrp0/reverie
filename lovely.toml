@@ -293,8 +293,8 @@ overwrite = true
 [[patches]]
 [patches.pattern]
 target = "functions/button_callbacks.lua"
-pattern = '''G.consumeables:emplace(c1)'''
-position = "after"
+pattern = '''elseif e.config.id ~= 'buy_and_use' then'''
+position = "before"
 payload = '''
 elseif c1.ability.set == "Tag" then
     add_tag(c1.ability.tag)
@@ -754,6 +754,33 @@ pattern = '''e.config.ref_table:use_consumeable(area)'''
 position = "after"
 payload = '''
 e.config.ref_table.ability.not_destroyed = true
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''G.CONTROLLER:recall_cardarea_focus('jokers')'''
+position = "after"
+payload = '''
+::reverie_buy_from_shop_tag_focus_skip::
+'''
+match_indent = true
+overwrite = false
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''G.CONTROLLER:save_cardarea_focus('jokers')'''
+position = "before"
+payload = '''
+if c1.ability.set == "Tag" then
+    G.CONTROLLER:save_cardarea_focus("shop_jokers")
+    G.CONTROLLER:recall_cardarea_focus("shop_jokers")
+
+    goto reverie_buy_from_shop_tag_focus_skip
+end
 '''
 match_indent = true
 overwrite = false

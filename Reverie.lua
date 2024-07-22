@@ -1991,13 +1991,14 @@ end
 function G.FUNCS.can_select_crazy_card(e)
     local is_cine = Reverie.is_cine_or_reverie(e.config.ref_table)
 
-    if e.config.ref_table.ability.set ~= "Voucher" and -- Copy pasted from G.FUNCS.check_for_buy_space
-    e.config.ref_table.ability.set ~= "Enhanced" and e.config.ref_table.ability.set ~= "Default" and
-    not (e.config.ref_table.ability.set == "Joker" and #G.jokers.cards < G.jokers.config.card_limit +
-        ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) and
-    not (e.config.ref_table.ability.consumeable and not is_cine and #G.consumeables.cards < G.consumeables.config.card_limit +
-        ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) and
-    not (is_cine and #G.cine_quests.cards < G.cine_quests.config.card_limit +
+    -- Copy pasted from G.FUNCS.check_for_buy_space
+    if e.config.ref_table.ability.set ~= "Voucher" and e.config.ref_table.ability.set ~= "Tag"
+    and e.config.ref_table.ability.set ~= "Enhanced" and e.config.ref_table.ability.set ~= "Default"
+    and not (e.config.ref_table.ability.set == "Joker" and #G.jokers.cards < G.jokers.config.card_limit +
+        ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0))
+    and not (e.config.ref_table.ability.consumeable and not is_cine and #G.consumeables.cards < G.consumeables.config.card_limit +
+        ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0))
+    and not (is_cine and #G.cine_quests.cards < G.cine_quests.config.card_limit +
         ((e.config.ref_table.edition and e.config.ref_table.edition.negative) and 1 or 0)) then
         e.config.colour = G.C.UI.BACKGROUND_INACTIVE
         e.config.button = nil
@@ -2032,6 +2033,55 @@ function G.UIDEF.use_and_sell_buttons(card)
     end
 
     return result
+end
+
+local card_focus_ui_ref = G.UIDEF.card_focus_ui
+function G.UIDEF.card_focus_ui(card)
+    local base_background = card_focus_ui_ref(card)
+    local base_attach = base_background:get_UIE_by_ID("ATTACH_TO_ME")
+    local card_width = card.T.w + (card.ability.consumeable and -0.1 or card.ability.set == "Voucher" and -0.16 or 0)
+
+    if Reverie.find_used_cine("Crazy Lucky") and card.area == G.pack_cards and G.pack_cards then
+        base_attach.children.use = G.UIDEF.card_focus_button{
+            card = card, parent = base_attach, type = "select",
+            func = "can_select_crazy_card", button = "use_card", card_width = card_width
+        }
+    elseif card.ability.set == "Booster" and (card.area == G.shop_jokers or card.area == G.shop_vouchers) then
+        base_attach.children.buy = nil
+        base_attach.children.redeem = G.UIDEF.card_focus_button{
+            card = card, parent = base_attach, type = "buy",
+            func = "can_open", button = "open_booster", card_width = card_width * 0.85
+        }
+    elseif card.ability.set == "Cine" then
+        if card.area == G.pack_cards and G.pack_cards then
+            base_attach.children.use = G.UIDEF.card_focus_button{
+                card = card, parent = base_attach, type = "select",
+                func = "can_select_card", button = "use_card", card_width = card_width
+            }
+        elseif G.cine_quests and card.area == G.cine_quests and G.STATE ~= G.STATES.TUTORIAL then
+            base_attach.children.use = G.UIDEF.card_focus_button{
+                card = card, parent = base_attach, type = "use",
+                func = "can_use_consumeable", button = "use_card", card_width = card_width
+            }
+            base_attach.children.sell = G.UIDEF.card_focus_button{
+                card = card, parent = base_attach, type = "sell",
+                func = "can_sell_card", button = "sell_card", card_width = card_width
+            }
+        end
+    end
+
+    return base_background
+end
+
+local is_node_focusable_ref = Controller.is_node_focusable
+function Controller:is_node_focusable(node)
+    local ret_val = is_node_focusable_ref(self, node)
+
+    if node:is(Card) and Reverie.find_used_cine("Adrifting") and node.facing == "back" then
+        ret_val = true
+    end
+
+    return ret_val
 end
 
 local sell_card_ref = G.FUNCS.sell_card
