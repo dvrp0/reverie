@@ -1285,13 +1285,9 @@ end
 
 function Reverie.set_cine_banned_keys()
     for k, v in pairs(G.P_CENTERS) do
-        local flag = false
-
         if (v.yes_pool_flag == "Tag or Die" and G.GAME.selected_back.name ~= "") or v.yes_pool_flag == "Crazy Lucky" then
-            flag = not Reverie.find_used_cine(v.yes_pool_flag)
+            G.GAME.banned_keys[k] = not Reverie.find_used_cine(v.yes_pool_flag)
         end
-
-        G.GAME.banned_keys[k] = flag or nil
     end
 end
 
