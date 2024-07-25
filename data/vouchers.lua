@@ -1,3 +1,11 @@
+local function script_redeem(center_table)
+    if center_table.name == "Script" and G.GAME.current_round.used_cine
+    and not G.GAME.current_round.cine_temporary_shop_card_limit then
+        G.GAME.current_round.cine_temporary_shop_card_limit = true
+        change_shop_size(G.P_CENTERS.v_script.config.extra)
+    end
+end
+
 local function megaphone_redeem(center_table)
     if center_table.name == "Megaphone" and G.cine_quests then
         G.E_MANAGER:add_event(Event({
@@ -24,7 +32,7 @@ local vouchers = {
         order = 1,
         name = "Script",
         config = {
-            extra = 1
+            extra = 2
         },
         cost = 10,
         pos = {
@@ -32,7 +40,8 @@ local vouchers = {
             y = 0
         },
         unlocked = true,
-        discovered = false
+        discovered = false,
+        redeem = script_redeem
     },
     {
         slug = "megaphone",
