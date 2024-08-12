@@ -201,6 +201,17 @@ local function loc_vars(self, info_queue, center)
             vars = {center.ability.extra.slots, center.ability.extra.goal, center.ability.progress}
         elseif center.config.center.reward == "c_dvrprv_ive_no_shape" then
             vars = {center.ability.extra.chips, center.ability.extra.goal, center.ability.progress}
+        elseif center.config.center.reward == "c_dvrprv_jovial_m" then
+            info_queue[#info_queue + 1] = {
+                key = "j_jolly",
+                set = "Joker",
+                specific_vars = {G.P_CENTERS.j_jolly.config.t_mult, G.P_CENTERS.j_jolly.config.type}
+            }
+            vars = {center.ability.extra.goal, center.ability.progress, localize{
+                type = "name_text",
+                set = "Joker",
+                key = "j_jolly"
+            }}
         else
             vars = {center.ability.extra.goal, center.ability.progress}
         end
@@ -671,6 +682,41 @@ Reverie.cines = {
             y = 2
         },
         dependency = "FusionJokers"
+    },
+    {
+        key = "jovial_m",
+        order = 28,
+        name = "Jovial M",
+        config = {
+            extra = {
+                kind = {
+                    "p_buffoon_"
+                }
+            }
+        },
+        cost = 4,
+        pos = {
+            x = 8,
+            y = 2
+        },
+        dependency = "Cryptid"
+    },
+    {
+        key = "jovial_m_quest",
+        order = 27,
+        name = "Jovial M Exchange Coupon",
+        reward = "c_dvrprv_jovial_m",
+        config = {
+            extra = {
+                goal = 3
+            }
+        },
+        cost = 4,
+        pos = {
+            x = 9,
+            y = 2
+        },
+        dependency = "Cryptid"
     }
 }
 

@@ -244,6 +244,9 @@ function Reverie.create_special_joker(area)
     if Reverie.find_used_cine("Radioactive") then
         table.insert(cine_joker_types, "Radioactive")
     end
+    if Reverie.find_used_cine("Jovial M")then
+        table.insert(cine_joker_types, "Jovial M")
+    end
 
     if #cine_joker_types > 0 then
         local type = pseudorandom_element(cine_joker_types, pseudoseed("cine_joker"))
@@ -286,6 +289,11 @@ function Reverie.create_special_joker(area)
 
             local target = pseudorandom_element(available, pseudoseed("radio"))
             card = create_card("Joker", area, nil, nil, nil, nil, target, "active")
+        elseif type == "Jovial M" then
+            card = create_card("Joker", area, nil, pseudorandom_element({
+                "cry_epic",
+                "cry_exotic"
+            }, pseudoseed("jovial_rarity")), nil, nil, nil, "jovial")
         end
     end
 
@@ -450,7 +458,7 @@ end
 
 function Reverie.is_cine_forcing_card_set()
     return Reverie.find_used_cine_or("I Sing, I've No Shape", "Crazy Lucky", "Tag or Die", "Let It Moon",
-        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist", "Every Hue", "Radioactive")
+        "Poker Face", "Eerie Inn", "Morsel", "Fool Metal Alchemist", "Every Hue", "Radioactive", "Jovial M")
 end
 
 function Reverie.get_used_cine_kinds()
@@ -553,7 +561,7 @@ function Reverie.create_card_for_cine_shop(area)
     local has_colour = Reverie.find_mod("MoreFluff")
 
     local crazy_pack_available = Reverie.find_used_cine("Crazy Lucky")
-    local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel", "Radioactive") or not is_forcing_card_set) and not crazy_pack_available
+    local joker_available = (Reverie.find_used_cine_or("I Sing, I've No Shape", "Morsel", "Radioactive", "Jovial M") or not is_forcing_card_set) and not crazy_pack_available
     local planet_or_tarot_available = (Reverie.find_used_cine("Let It Moon") or not is_forcing_card_set) and not crazy_pack_available
     local playing_available = (Reverie.find_used_cine("Poker Face") or not is_forcing_card_set) and not crazy_pack_available
     local spectral_available = (Reverie.find_used_cine("Eerie Inn") or not is_forcing_card_set) and not crazy_pack_available
@@ -1314,7 +1322,8 @@ function Card:calculate_joker(context)
         or (self.config.center.reward == "c_dvrprv_morsel" and context.joker_added and Reverie.is_food_joker(context.card.config.center_key))
         or (self.config.center.reward == "c_dvrprv_alchemist" and context.using_consumeable and context.consumeable.ability.set == "Alchemical")
         or (self.config.center.reward == "c_dvrprv_very_hue" and context.using_consumeable and context.consumeable.ability.set == "Colour")
-        or (self.config.center.reward == "c_dvrprv_radioactive" and context.joker_added and context.card.config.center.rarity == 5) then
+        or (self.config.center.reward == "c_dvrprv_radioactive" and context.joker_added and context.card.config.center.rarity == 5)
+        or (self.config.center.reward == "c_dvrprv_jovial_m" and context.selling_card and context.card.config.center.key == "j_jolly") then
             return Reverie.progress_cine_quest(self)
         end
     end

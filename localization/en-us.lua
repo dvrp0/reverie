@@ -233,6 +233,24 @@ return {
                     "appear",
                     "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
                 }
+            },
+            c_dvrprv_jovial_m_quest = {
+                name = "Exchange Coupon",
+                text = {
+                    "Converts to {C:cine}Jovial M",
+                    "after selling {C:attention}#1#",
+                    "{C:attention}#3#",
+                    "{C:inactive}(Currently {C:attention}#2#{C:inactive}/#1#)"
+                }
+            },
+            c_dvrprv_jovial_m = {
+                name = "Jovial M",
+                text = {
+                    "During this shop,",
+                    "only {C:cry_epic}Epic{} or {C:cry_exotic}Exotic",
+                    "{C:attention}Jokers{} appear",
+                    "{s:0.8}Rerolls {s:0.8,C:attention}Booster Packs"
+                }
             }
         },
         Joker = {
