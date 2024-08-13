@@ -1440,6 +1440,10 @@ function Reverie.complete_cine_quest(card)
                         discover_card(card.config.center)
                     end
 
+                    if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
+                        card.joker_display_values.disabled = true
+                    end
+
                     return true
                 end
             }))

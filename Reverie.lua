@@ -21,3 +21,7 @@ SMODS.load_file("data/consumables.lua")()
 SMODS.load_file("data/vouchers.lua")()
 SMODS.load_file("data/atlases.lua")()
 SMODS.load_file("data/shaders.lua")()
+
+if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
+    SMODS.load_file("data/joker_display.lua")()
+end
