@@ -308,6 +308,7 @@ function Reverie.create_poker_face_card(area)
 end
 
 function Reverie.get_food_jokers()
+    local result = {}
     local foods = {
         G.GAME.pool_flags.gros_michel_extinct and "j_cavendish" or "j_gros_michel",
         "j_ice_cream",
@@ -316,28 +317,49 @@ function Reverie.get_food_jokers()
         "j_popcorn",
         "j_ramen",
         "j_selzer",
-        "j_egg"
+        "j_egg",
+        "j_mf_lollipop",
+        "j_mf_goldencarrot",
+        "j_mf_tonersoup",
+        "j_mf_teacup",
+        "j_cafeg",
+        "j_cherry",
+        G.GAME.pool_flags.taliaferro_extinct and "j_olab_royal_gala" or "j_olab_taliaferro",
+        "j_olab_fine_wine",
+        "j_olab_mystery_soda",
+        "j_olab_popcorn_bag",
+        "j_cry_pickle",
+        "j_cry_chili_pepper",
+        "j_cry_oldcandy",
+        "j_cry_caramel",
+        "j_cry_foodm",
+        "j_cry_crustulum",
+        "j_bunc_fondue",
+        "j_bunc_starfruit",
+        "j_evo_full_sugar_cola",
+        "j_kcva_fortunecookie",
+        "j_kcva_swiss",
+        "j_sdm_burger",
+        "j_sdm_pizza",
+        "j_snow_turkey_dinner",
+        "j_ssj_coffee",
+        "j_jank_cut_the_cheese",
+        "j_pape_soft_taco",
+        "j_pape_crispy_taco",
+        "j_pape_nachos",
+        "j_pape_ghost_cola",
+        "j_twewy_candleService",
+        "j_twewy_burningCherry",
+        "j_twewy_burningMelon"
     }
 
-    if Reverie.find_mod("MoreFluff") then
-        table.insert(foods, "j_mf_lollipop")
-        table.insert(foods, "j_mf_goldencarrot")
-        table.insert(foods, "j_mf_tonersoup")
-        table.insert(foods, "j_mf_teacup")
+    for _, v in pairs(foods) do
+        if G.P_CENTERS[v] then
+            result[#result + 1] = v
+        end
     end
 
-    if Reverie.find_mod("MtlJokers") then
-        table.insert(foods, "j_cherry")
-    end
-
-    if Reverie.find_mod("Ortalab") then
-        table.insert(foods, G.GAME.pool_flags.taliaferro_extinct and "j_royal_gala" or "j_taliaferro")
-        table.insert(foods, "j_fine_wine")
-        table.insert(foods, "j_mystery_soda")
-        table.insert(foods, "j_popcorn_bag")
-    end
-
-    return foods
+    return result
 end
 
 function Reverie.is_food_joker(key)
@@ -368,10 +390,16 @@ function Reverie.morselize_UI(card)
         local temp_main = {}
         local loc_vars = {}
 
-        if card.ability.name == "Fine Wine" then
+        if card.config.center.key == "j_olab_fine_wine" then
             loc_vars = {card.ability.extra.discards}
-        elseif card.ability.name == "Golden Carrot" then
+        elseif card.config.center.key == "j_mf_goldencarrot" then
             loc_vars = {nil, 2}
+        elseif card.config.center.key == "j_pape_ghost_cola" then
+            loc_vars = {localize{
+                type = "name_text",
+                set = "Tag",
+                key = "tag_negative"
+            }}
         end
 
         localize{
@@ -389,13 +417,15 @@ function Reverie.morselize_UI(card)
         end
     end
 
-    table.insert(card.ability_UIBox_table.info, 1, {})
+    table.insert(card.ability_UIBox_table.badges, "morseled")
+    table.insert(card.ability_UIBox_table.info, {})
+    local last_info = card.ability_UIBox_table.info[#card.ability_UIBox_table.info]
     localize{
         type = "other",
         key = "morseled",
-        nodes = card.ability_UIBox_table.info[1]
+        nodes = last_info
     }
-    card.ability_UIBox_table.info[1].name = localize{
+    last_info.name = localize{
         type = 'name_text',
         key = "morseled",
         set = "Other"
@@ -1340,55 +1370,56 @@ function Card:calculate_joker(context)
                 end)
             }))
             delay(0.5)
-        elseif self.ability.name == "Mystery Soda" and context.selling_self then
-            local available = {}
-            local targets = {}
-
-            for k, v in pairs(G.P_TAGS) do
-                table.insert(available,k)
-            end
-
-            for i = 1, 2 do
-                targets[i] = pseudorandom_element(available, pseudoseed("mystery_soda"))
-            end
-
-            G.E_MANAGER:add_event(Event({
-                func = (function()
-                    add_tag(Tag(targets[1], false, "Big"))
-                    add_tag(Tag(targets[2], false, "Big"))
-                    play_sound("generic1", 0.9 + math.random() * 0.1, 0.8)
-                    play_sound("holo1", 1.2 + math.random() * 0.1, 0.4)
-
-                    return true
-                end)
-            }))
+        elseif (self.config.center.key == "j_olab_mystery_soda" and context.selling_self)
+        or (self.config.center.key == "j_evo_full_sugar_cola" and context.selling_self)
+        or (self.config.center.key == "j_pape_ghost_cola" and context.selling_self)
+        or (self.config.center.key == "j_jank_cut_the_cheese" and context.setting_blind)
+        or (self.config.center.key == "j_mf_tonersoup" and context.cardarea == G.jokers and context.before) then
+            self.config.center:calculate(self, context)
             delay(0.5)
-        elseif self.ability.name == "Fine Wine" and context.setting_blind and not context.getting_sliced and not context.blueprint then
+        elseif self.config.center.key == "j_olab_fine_wine" and context.setting_blind and not context.getting_sliced and not context.blueprint then
             self.ability.extra.discards = self.ability.extra.discards + 1
-        elseif self.ability.name == "Golden Carrot" and context.after and context.cardarea == G.jokers and not context.blueprint then
+        elseif self.config.center.key == "j_mf_goldencarrot" and context.after and context.cardarea == G.jokers and not context.blueprint then
             if not self.gone and self.ability.extra - 1 > 0 then
                 self.ability.extra = self.ability.extra - 1
             end
-        elseif self.ability.name == "I Sip Toner Soup" and context.cardarea == G.jokers and context.before then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                G.E_MANAGER:add_event(Event({
-                    trigger = "before",
-                    func = function()
-                        local card = create_card("Tarot", G.consumeables, nil, nil, nil, nil, nil, "sup")
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                        G.GAME.consumeable_buffer = 0
+        elseif self.config.center.key == "j_bunc_fondue" and context.after and G.GAME.current_round.hands_played == 1 and context.scoring_hand and not context.blueprint then
+            enable_exotics()
 
-                        return true
-                    end
-                }))
-                delay(0.5)
+            for i = 1, #context.scoring_hand do
+                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("card1", 1); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
             end
+
+            for i = 1, #context.scoring_hand do
+                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.1,  func = function() context.scoring_hand[i]:change_suit("bunc_Fleurons"); return true end })
+            end
+
+            for i = 1, #context.scoring_hand do
+                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("tarot2", 1, 0.6); self:juice_up(0.7); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
+            end
+
+            delay(0.7 * 1.25)
         end
     end
 
-    return calculate_joker_ref(self, context)
+    local result = calculate_joker_ref(self, context)
+
+    if self.ability.set == "Joker" and self.ability.morseled then
+        if self.config.center.key == "j_kcva_swiss" and context.after and not context.blueprint then
+            card_eval_status_text(self, "extra", nil, nil, nil, {
+                message = localize {
+                    type = "variable",
+                    key = "a_mult",
+                    vars = {self.ability.mult}
+                },
+                colour = G.C.MULT
+            });
+
+            self.ability.mult = self.ability.mult * 2
+        end
+    end
+
+    return result
 end
 
 function Reverie.progress_cine_quest(card)

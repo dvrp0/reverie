@@ -260,14 +260,13 @@ return {
                     "create two free"
                 }
             },
-            j_fine_wine_morsel_alternative = {
+            j_olab_fine_wine_morsel_alternative = {
                 text = {
-                    "{C:red}+#1#{} discards, gains {C:red}+2{} discard",
+                    "{C:red}+#1#{} discards, gains {C:red}+2{} discards",
                 }
             },
-            j_mystery_soda_morsel_alternative = {
+            j_olab_mystery_soda_morsel_alternative = {
                 text = {
-                    ".",
                     ".",
                     "four free {C:attention}tags"
                 }
@@ -282,6 +281,40 @@ return {
             j_mf_tonersoup_morsel_alternative = {
                 text = {
                     "Create two {C:tarot}Tarot{} cards"
+                }
+            },
+            j_bunc_fondue_morsel_alternative = {
+                text = {
+                    ".",
+                    "{C:attention}first and second hand{} of round are"
+                }
+            },
+            j_evo_full_sugar_cola_morsel_alternative = {
+                text = {
+                    ".",
+                    "create {C:attention}4{} free"
+                }
+            },
+            j_kcva_swiss_morsel_alternative = {
+                text = {
+                    "{C:mult}+20{} Mult for each"
+                }
+            },
+            j_jank_cut_the_cheese_morsel_alternative = {
+                text = {
+                    ".",
+                    "create two random {C:attention}Food Jokers"
+                }
+            },
+            j_pape_ghost_cola_morsel_alternative = {
+                text = {
+                    "Sell this card to create two {C:attention}#1#{}",
+                    "and two random {C:dark_edition}Negative{} {C:spectral}Spectral{} cards"
+                }
+            },
+            j_twewy_candleService_morsel_alternative = {
+                text = {
+                    "Every eighth scoring"
                 }
             },
             j_dvrprv_dynamic_film = {
@@ -459,6 +492,9 @@ return {
             dvrprv_jokerdisplay_compat = "Enable JokerDisplay Compatibility",
             dvrprv_tag_packs_shop = "Allow Tag Packs to appear in the shop normally",
             dvrprv_crazy_pack_shop = "Allow Crazy Packs to appear in the shop normally",
+        },
+        labels = {
+            morseled = "Morsel"
         }
     }
 }

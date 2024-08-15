@@ -475,3 +475,12 @@ if _c.generate_detailed_tooltip and type(_c.generate_detailed_tooltip) == "funct
     _c:generate_detailed_tooltip(info_queue, card, desc_nodes)
 end'''
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''pinned_left = G.C.ORANGE,'''
+position = "before"
+payload = '''
+morseled = HEX("b0aa9f"),'''
+match_indent = true
