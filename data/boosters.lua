@@ -4,14 +4,14 @@ local crazy_pack_sparkles = {
     lifespan = 2.5,
     speed = 0.7,
     padding = -3,
-    colours = {G.C.WHITE, lighten(Reverie.cine_color, 0.4), lighten(G.C.RED, 0.2)}
+    colours = {G.C.WHITE, lighten(Reverie.badge_colour, 0.4), lighten(G.C.RED, 0.2)}
 }
 local film_pack_meteors = {
     timer = 0.035,
     scale = 0.1,
     lifespan = 1.5,
     speed = 4,
-    colours = {lighten(Reverie.cine_color, 0.2), G.C.WHITE}
+    colours = {lighten(Reverie.badge_colour, 0.2), G.C.WHITE}
 }
 
 local function create_tag_pack_card(self, card)
@@ -171,6 +171,7 @@ Reverie.boosters = {
                 ["Cine"] = 0.01
             }
         },
+        weight = 1,
         kind = "Crazy",
         cost = 6,
         yes_pool_flag = "Crazy Lucky",

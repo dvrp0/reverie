@@ -1,19 +1,128 @@
-Reverie = {
-    prefix = "dvrprv",
-    cine_color = HEX("9db95f"),
-    flipped_voucher_pos = {
-        x = 1,
-        y = 0
-    },
-    flipped_tag_pos = {
-        x = 0,
-        y = 1
-    },
-    flipped_booster_pos = {
-        x = 5,
-        y = 0
-    }
+Reverie = SMODS.current_mod
+Reverie.prefix = "dvrprv"
+Reverie.badge_colour = HEX("9db95f")
+Reverie.flipped_voucher_pos = {
+    x = 1,
+    y = 0
 }
+Reverie.flipped_tag_pos = {
+    x = 0,
+    y = 1
+}
+Reverie.flipped_booster_pos = {
+    x = 5,
+    y = 0
+}
+
+print(inspect(Reverie))
+
+SMODS.current_mod.config_tab = function ()
+    return {
+        n = G.UIT.ROOT,
+        config = {
+            align = "tm",
+            r = 0.1,
+            padding = 0.2,
+            colour = G.C.BLACK
+        },
+        nodes = {
+            {
+                n = G.UIT.R,
+                config = {
+                    align = "cm"
+                },
+                nodes = {
+                    {
+                        n = G.UIT.T,
+                        config = {
+                            text = localize("k_dvrprv_title").." v"..Reverie.version,
+                            scale = 0.7,
+                            colour = Reverie.badge_colour
+                        }
+                    }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = {
+                    align = "cm"
+                },
+                nodes = {
+                    {
+                        n = G.UIT.T,
+                        config = {
+                            text = localize("k_dvrprv_description"),
+                            scale = 0.4,
+                            colour = G.C.UI.TEXT_INACTIVE
+                        }
+                    }
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = {
+                    minh = 0.1
+                }
+            },
+            {
+                n = G.UIT.R,
+                config = {align = "cm"},
+                nodes = {
+                    {
+                        n=G.UIT.O,
+                        config = {
+                            object = DynaText({
+                                string = {"......................................"},
+                                colours = {G.C.WHITE},
+                                shadow = true,
+                                float = true,
+                                y_offset = -30,
+                                scale = 0.45,
+                                spacing = 13.5,
+                                font = G.LANGUAGES["en-us"].font,
+                                pop_in = 0
+                            })
+                        }
+                    }
+                }
+            },
+            create_toggle({
+                label = localize("b_dvrprv_jokerdisplay_compat"),
+                info = localize("b_dvrprv_jokerdisplay_compat_info"),
+                active_colour = Reverie.badge_colour,
+                ref_table = Reverie.config,
+                ref_value = "jokerdisplay_compat"
+            }),
+            create_toggle({
+                label = localize("b_dvrprv_tag_packs_shop"),
+                info = localize("b_dvrprv_tag_packs_shop_info"),
+                active_colour = Reverie.badge_colour,
+                ref_table = Reverie.config,
+                ref_value = "tag_packs_shop"
+            }),
+            create_toggle({
+                label = localize("b_dvrprv_crazy_packs_shop"),
+                info = localize("b_dvrprv_crazy_packs_shop_info"),
+                active_colour = Reverie.badge_colour,
+                ref_table = Reverie.config,
+                ref_value = "crazy_packs_shop"
+            }),
+            create_toggle({
+                label = localize("b_dvrprv_custom_morsel_compat"),
+                info = localize("b_dvrprv_custom_morsel_compat_info"),
+                active_colour = Reverie.badge_colour,
+                ref_table = Reverie.config,
+                ref_value = "custom_morsel_compat"
+            }),
+            {
+                n = G.UIT.R,
+                config = {
+                    minh = 0.1
+                }
+            }
+        }
+    }
+end
 
 local get_starting_params_ref = get_starting_params
 function get_starting_params()
@@ -386,7 +495,7 @@ end
 
 function Reverie.morselize_UI(card)
     local alternative = G.localization.descriptions.Joker[card.config.center_key.."_morsel_alternative"]
-    if alternative then
+    if alternative and (Reverie.config.custom_morsel_compat or card.config.center.key == "j_diet_cola") then
         local temp_main = {}
         local loc_vars = {}
 
@@ -839,7 +948,8 @@ end
 
 function Reverie.set_cine_banned_keys()
     for k, v in pairs(G.P_CENTERS) do
-        if (v.yes_pool_flag == "Tag or Die" and G.GAME.selected_back.name ~= "") or v.yes_pool_flag == "Crazy Lucky" then
+        if (v.yes_pool_flag == "Tag or Die" and G.GAME.selected_back.name ~= "" and not Reverie.config.tag_packs_shop)
+        or (v.yes_pool_flag == "Crazy Lucky" and not Reverie.config.crazy_packs_shop) then
             G.GAME.banned_keys[k] = not Reverie.find_used_cine(v.yes_pool_flag)
         end
     end
@@ -1370,35 +1480,39 @@ function Card:calculate_joker(context)
                 end)
             }))
             delay(0.5)
-        elseif (self.config.center.key == "j_olab_mystery_soda" and context.selling_self)
-        or (self.config.center.key == "j_evo_full_sugar_cola" and context.selling_self)
-        or (self.config.center.key == "j_pape_ghost_cola" and context.selling_self)
-        or (self.config.center.key == "j_jank_cut_the_cheese" and context.setting_blind)
-        or (self.config.center.key == "j_mf_tonersoup" and context.cardarea == G.jokers and context.before) then
-            self.config.center:calculate(self, context)
-            delay(0.5)
-        elseif self.config.center.key == "j_olab_fine_wine" and context.setting_blind and not context.getting_sliced and not context.blueprint then
-            self.ability.extra.discards = self.ability.extra.discards + 1
-        elseif self.config.center.key == "j_mf_goldencarrot" and context.after and context.cardarea == G.jokers and not context.blueprint then
-            if not self.gone and self.ability.extra - 1 > 0 then
-                self.ability.extra = self.ability.extra - 1
-            end
-        elseif self.config.center.key == "j_bunc_fondue" and context.after and G.GAME.current_round.hands_played == 1 and context.scoring_hand and not context.blueprint then
-            enable_exotics()
+        end
 
-            for i = 1, #context.scoring_hand do
-                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("card1", 1); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
-            end
+        if Reverie.config.custom_morsel_compat then
+            if (self.config.center.key == "j_olab_mystery_soda" and context.selling_self)
+            or (self.config.center.key == "j_evo_full_sugar_cola" and context.selling_self)
+            or (self.config.center.key == "j_pape_ghost_cola" and context.selling_self)
+            or (self.config.center.key == "j_jank_cut_the_cheese" and context.setting_blind)
+            or (self.config.center.key == "j_mf_tonersoup" and context.cardarea == G.jokers and context.before) then
+                self.config.center:calculate(self, context)
+                delay(0.5)
+            elseif self.config.center.key == "j_olab_fine_wine" and context.setting_blind and not context.getting_sliced and not context.blueprint then
+                self.ability.extra.discards = self.ability.extra.discards + 1
+            elseif self.config.center.key == "j_mf_goldencarrot" and context.after and context.cardarea == G.jokers and not context.blueprint then
+                if not self.gone and self.ability.extra - 1 > 0 then
+                    self.ability.extra = self.ability.extra - 1
+                end
+            elseif self.config.center.key == "j_bunc_fondue" and context.after and G.GAME.current_round.hands_played == 1 and context.scoring_hand and not context.blueprint then
+                enable_exotics()
 
-            for i = 1, #context.scoring_hand do
-                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.1,  func = function() context.scoring_hand[i]:change_suit("bunc_Fleurons"); return true end })
-            end
+                for i = 1, #context.scoring_hand do
+                    G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("card1", 1); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
+                end
 
-            for i = 1, #context.scoring_hand do
-                G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("tarot2", 1, 0.6); self:juice_up(0.7); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
-            end
+                for i = 1, #context.scoring_hand do
+                    G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.1,  func = function() context.scoring_hand[i]:change_suit("bunc_Fleurons"); return true end })
+                end
 
-            delay(0.7 * 1.25)
+                for i = 1, #context.scoring_hand do
+                    G.E_MANAGER:add_event(Event{trigger = "after", delay = 0.15, func = function() context.scoring_hand[i]:flip(); play_sound("tarot2", 1, 0.6); self:juice_up(0.7); context.scoring_hand[i]:juice_up(0.3, 0.3); return true end })
+                end
+
+                delay(0.7 * 1.25)
+            end
         end
     end
 

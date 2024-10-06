@@ -483,15 +483,34 @@ return {
     },
     misc = {
         dictionary = {
+            k_dvrprv_title = "Reverie",
+            k_dvrprv_description = "Prepare Your Tickets",
             k_dvrprv_cine = "Cine",
             k_dvrprv_tag = "Tag",
             k_dvrprv_tag_pack = "Tag Pack",
             k_dvrprv_crazy_pack = "Pack",
             k_dvrprv_film_pack = "Film Pack",
             b_dvrprv_cine_cards = "Cine Cards",
-            dvrprv_jokerdisplay_compat = "Enable JokerDisplay Compatibility",
-            dvrprv_tag_packs_shop = "Allow Tag Packs to appear in the shop normally",
-            dvrprv_crazy_pack_shop = "Allow Crazy Packs to appear in the shop normally",
+            b_dvrprv_jokerdisplay_compat = "JokerDisplay compatibility",
+            b_dvrprv_jokerdisplay_compat_info = {
+                "Enable JokerDisplay compatibility for",
+                "Exchange Coupons"
+            },
+            b_dvrprv_tag_packs_shop = "Tag Packs in shop",
+            b_dvrprv_tag_packs_shop_info = {
+                "Allow Tag Packs to appear in the shop normally"
+            },
+            b_dvrprv_crazy_packs_shop = "Crazy Packs in shop",
+            b_dvrprv_crazy_packs_shop_info = {
+                "Allow Crazy Packs to appear in the shop normally"
+            },
+            b_dvrprv_custom_morsel_compat = "Morsel for modded Jokers",
+            b_dvrprv_custom_morsel_compat_info =
+            {
+                "Enable Morsel compatibilities for Modded Jokers",
+                "(e.g. TWEWJ's Candle Service: Every forth scoring >>>",
+                "Every eighth scoring)"
+            }
         },
         labels = {
             morseled = "Morsel"

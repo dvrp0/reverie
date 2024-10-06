@@ -2,14 +2,13 @@
 -- https://github.com/nh6574/JokerDisplay/blob/main/src/display_functions.lua
 
 local progress_text = {
-    { ref_table = "card.ability", ref_value = "progress", colour = Reverie.cine_color },
+    { ref_table = "card.ability", ref_value = "progress", colour = Reverie.badge_colour },
     { text = "/" },
     { ref_table = "card.ability.extra", ref_value = "goal" }
 }
 
 function Card:update_cine_display(force_update, force_reload, _from)
     if self.ability and self.ability.set == "Cine" then
-        --print(tostring(self.ability.name) .. " : " .. tostring(_from))
         if not self.children.joker_display then
             self.joker_display_values = {}
             self.joker_display_values.disabled = JokerDisplay.config.hide_by_default
@@ -120,7 +119,7 @@ local card_update_ref = Card.update
 function Card:update(dt)
     card_update_ref(self, dt)
 
-    if JokerDisplay.config.enabled and G.cine_quests and self.area == G.cine_quests then
+    if JokerDisplay.config.enabled and Reverie.config.jokerdisplay_compat and G.cine_quests and self.area == G.cine_quests then
         if not self.joker_display_last_update_time then
             self.joker_display_last_update_time = 0
             self.joker_display_update_time_variance = math.random()

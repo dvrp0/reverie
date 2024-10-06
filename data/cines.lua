@@ -118,19 +118,8 @@ local function create_UIBox_your_collection_cines(self)
             no_pips = true
         })
     }
-
-    if SMODS.Palettes[self.key] and #SMODS.Palettes[self.key].names > 1 then
-        option_nodes[#option_nodes + 1] = create_option_cycle({
-            w = 4.5,
-            scale = 0.8,
-            options = SMODS.Palettes[self.key].names,
-            opt_callback = "update_recolor",
-            current_option = G.SETTINGS.selected_colours[self.key].order,
-            type = self.key
-        })
-    end
-
     local type_buf = {}
+
     if G.ACTIVE_MOD_UI then
         for _, v in ipairs(SMODS.ConsumableType.obj_buffer) do
             if modsCollectionTally(G.P_CENTER_POOLS[v]).of > 0 then type_buf[#type_buf + 1] = v end
@@ -154,7 +143,7 @@ SMODS.ConsumableType{
     key = "Cine",
     collection_rows = { 4, 6 },
     primary_colour = G.C.SET.Joker,
-    secondary_colour = Reverie.cine_color,
+    secondary_colour = Reverie.badge_colour,
     loc_txt = {
         collection = "Cine Cards",
         name = "Cine",
