@@ -1,12 +1,12 @@
-local function script_redeem(center_table)
+local function redeem_script(center_table)
     if center_table.name == "Script" and G.GAME.current_round.used_cine
     and not G.GAME.current_round.cine_temporary_shop_card_limit then
         G.GAME.current_round.cine_temporary_shop_card_limit = true
-        change_shop_size(G.P_CENTERS.v_script.config.extra)
+        change_shop_size(center_table.config.extra)
     end
 end
 
-local function megaphone_redeem(center_table)
+local function redeem_megaphone(center_table)
     if center_table.name == "Megaphone" and G.cine_quests then
         G.E_MANAGER:add_event(Event({
             func = function()
@@ -26,44 +26,43 @@ local function megaphone_redeem(center_table)
     end
 end
 
-local vouchers = {
+Reverie.vouchers = {
     {
-        slug = "script",
+        key = "script",
         order = 1,
         name = "Script",
         config = {
             extra = 2
         },
-        cost = 10,
         pos = {
             x = 0,
             y = 0
         },
-        unlocked = true,
-        discovered = false,
-        redeem = script_redeem
+        redeem = redeem_script,
+        loc_vars = function (self, info_queue, center)
+            return {vars = {center.ability.extra}}
+        end
     },
     {
-        slug = "megaphone",
+        key = "megaphone",
         order = 2,
         name = "Megaphone",
         requires = {
-            "v_script"
+            "v_dvrprv_script"
         },
         config = {
             extra = 0.5
         },
-        cost = 10,
         pos = {
             x = 0,
             y = 1
         },
-        unlocked = true,
-        discovered = false,
-        redeem = megaphone_redeem
+        redeem = redeem_megaphone
     }
 }
 
-table.sort(vouchers, function (a, b) return a.order < b.order end)
+for _, v in pairs(Reverie.vouchers) do
+    v.atlas = "cine_vouchers"
 
-return vouchers
+    SMODS.Voucher(v)
+end
