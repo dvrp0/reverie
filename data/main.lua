@@ -921,10 +921,7 @@ function CardArea:emplace(card, location, stay_flipped)
     end
 end
 
-local calculate_reroll_cost_ref = calculate_reroll_cost
-function calculate_reroll_cost(skip_increment)
-    calculate_reroll_cost_ref(skip_increment)
-
+function Reverie.calculate_reroll_cost()
     if not G.GAME.current_round.used_cine then
         return
     end
@@ -935,6 +932,7 @@ function calculate_reroll_cost(skip_increment)
         local center = Reverie.find_cine_center(v)
 
         if center and type(center.config.extra) == "table" then
+
             if center.config.extra.mult then
                 G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
             elseif center.config.extra.add then
@@ -1081,6 +1079,7 @@ function Reverie.use_cine(center, card, area, copier)
             end
 
             calculate_reroll_cost(true)
+            Reverie.calculate_reroll_cost()
 
             if (is_reverie or card.ability.name == "Fool Metal Alchemist") and G.P_CENTERS.c_dvrprv_alchemist
             and not G.GAME.current_round.cine_temporary_consumeable_limit then

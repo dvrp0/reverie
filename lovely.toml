@@ -484,3 +484,13 @@ position = "before"
 payload = '''
 morseled = HEX("b0aa9f"),'''
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''calculate_reroll_cost(final_free)'''
+position = "after"
+payload = '''
+Reverie.calculate_reroll_cost()
+'''
+match_indent = true
