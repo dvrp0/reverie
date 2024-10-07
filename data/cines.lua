@@ -609,7 +609,7 @@ Reverie.cines = {
             extra = {
                 rounds = 3,
                 kind = {
-                    "p_colour_"
+                    "p_mf_colour_"
                 }
             }
         },
