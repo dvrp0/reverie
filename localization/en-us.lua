@@ -271,13 +271,6 @@ return {
                     "four free {C:attention}tags"
                 }
             },
-            j_mf_goldencarrot_morsel_alternative = {
-                text = {
-                    ".",
-                    ".",
-                    "{C:money}-$#2#{} per hand played"
-                }
-            },
             j_mf_tonersoup_morsel_alternative = {
                 text = {
                     "Create two {C:tarot}Tarot{} cards"
