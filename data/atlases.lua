@@ -40,6 +40,12 @@ Reverie.atlases = {
         path = "backs.png",
         px = 71,
         py = 95
+    },
+    {
+        key = "cine_sleeves",
+        path = "sleeves.png",
+        px = 71,
+        py = 95
     }
 }
 

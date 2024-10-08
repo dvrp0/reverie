@@ -4,8 +4,8 @@ end
 
 local function trigger_stamp(self, args)
     if args.context == "setting_tags" then
-        G.GAME.round_resets.blind_tags.Small = "tag_dvrprv_mega_tag"
-        G.GAME.round_resets.blind_tags.Big = "tag_dvrprv_mega_tag"
+        G.GAME.round_resets.blind_tags.Small = "tag_dvrprv_jumbo_tag"
+        G.GAME.round_resets.blind_tags.Big = "tag_dvrprv_jumbo_tag"
 
         return
     end

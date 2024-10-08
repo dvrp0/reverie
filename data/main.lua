@@ -147,9 +147,16 @@ function Game:start_run(args)
 
     Reverie.set_cine_banned_keys()
     set_screen_positions()
+
     G.GAME.selected_back:trigger_effect({
         context = "setting_tags"
     })
+
+    if G.GAME.selected_sleeve then
+        CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve or "sleeve_casl_none"):trigger_effect({
+            context = "setting_tags"
+        })
+    end
 end
 
 local set_screen_positions_ref = set_screen_positions
@@ -640,6 +647,16 @@ function Reverie.find_cine_center(name)
     return nil
 end
 
+local create_card_ref = create_card
+function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+    if G.GAME.selected_sleeve and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip"
+    and G.GAME.selected_back.name == "Filmstrip Deck" and _type == "Cine" and key_append == "sho" then
+        _type = "Cine_Quest"
+    end
+
+    return create_card_ref(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
+end
+
 local create_card_shop_ref = create_card_for_shop
 function create_card_for_shop(area)
     if G.GAME.current_round.used_cine then
@@ -881,6 +898,13 @@ function CardArea:emplace(card, location, stay_flipped)
             card:set_edition({
                 [edition] = true
             })
+        elseif card.ability.set == "Cine" and card.ability.progress and G.GAME.selected_sleeve
+        and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip" and G.GAME.selected_back.name == "Filmstrip Deck" then
+            local odds = CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve).config.odds
+
+            if pseudorandom("filmstrip_sleeve") < G.GAME.probabilities.normal / odds then
+                card:set_edition("e_negative")
+            end
         end
 
         if heist then
@@ -1070,7 +1094,7 @@ function Reverie.use_cine(center, card, area, copier)
                         table.insert(G.GAME.current_round.used_cine, v.name)
                     end
                 end
-            elseif G.GAME.selected_back.name == "Filmstrip Deck" then
+            elseif G.GAME.selected_back.name == "Filmstrip Deck" or (G.GAME.selected_sleeve and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip") then
                 table.insert(G.GAME.current_round.used_cine, card.ability.name)
             elseif not Reverie.find_used_cine(card.ability.name) then
                 G.GAME.current_round.used_cine = {
@@ -1587,7 +1611,7 @@ function Reverie.complete_cine_quest(card)
                         discover_card(card.config.center)
                     end
 
-                    if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
+                    if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] and Reverie.config.jokerdisplay_compat then
                         card.joker_display_values.disabled = true
                     end
 
@@ -1857,9 +1881,16 @@ end
 local cash_out_ref = G.FUNCS.cash_out
 function G.FUNCS.cash_out(e)
     cash_out_ref(e)
+
     G.GAME.selected_back:trigger_effect({
         context = "setting_tags"
     })
+
+    if G.GAME.selected_sleeve then
+        CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve or "sleeve_casl_none"):trigger_effect({
+            context = "setting_tags"
+        })
+    end
 end
 
 function Reverie.halve_cine_quest_goal(value)

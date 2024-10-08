@@ -343,6 +343,37 @@ return {
                 }
             }
         },
+        Sleeve = {
+            sleeve_dvrprv_filmstrip = {
+                name = "Filmstrip Sleeve",
+                text = {
+                    "{C:cine}Cine{} cards can stack",
+                    "{C:attention}+#1#{} Cine slot"
+                }
+            },
+            sleeve_dvrprv_filmstrip_alt = {
+                name = "Filmstrip Sleeve",
+                text = {
+                    "{C:cine}Exchange Coupons{} may appear",
+                    "in the shop and has {C:green}#2# in #3#",
+                    "chance for being {C:dark_edition}Negative"
+                }
+            },
+            sleeve_dvrprv_stamp = {
+                name = "Stamp Sleeve",
+                text = {
+                    "Skipping {C:attention}Blind{} gives",
+                    "{C:attention,T:p_dvrprv_tag_jumbo_1}#1#{} instead"
+                }
+            },
+            sleeve_dvrprv_stamp_alt = {
+                name = "Stamp Sleeve",
+                text = {
+                    "Skipping {C:attention}Blind{} also",
+                    "gives a {C:attention}random Tag{}"
+                }
+            }
+        },
         Tag = {
             tag_dvrprv_cine = {
                 name = "Stub Tag",
@@ -351,18 +382,19 @@ return {
                     "{C:cine}Film Pack"
                 }
             },
-            tag_dvrprv_tag = {
-                name = "Mark Tag",
-                text = {
-                    "Gives a free",
-                    "{C:attention}Tag Pack"
-                }
-            },
-            tag_dvrprv_mega_tag = {
+            tag_dvrprv_jumbo_tag = {
                 name = "Stamp Tag",
                 text = {
                     "Gives a free",
                     "{C:attention}Jumbo Tag Pack"
+                }
+            },
+            tag_dvrprv_mega_tag = {
+                name = "Mega Stamp Tag",
+                text = {
+                    "Gives a free",
+                    "{C:attention}Jumbo Tag Pack",
+                    "and a {C:attention}random Tag"
                 }
             }
         },

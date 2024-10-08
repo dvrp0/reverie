@@ -52,11 +52,11 @@ local function create_UIBox_your_collection_cines(self)
     G.your_collection = {}
     for j = 1, 2 do
         G.your_collection[j] = CardArea(G.ROOM.T.x + 0.2 * G.ROOM.T.w / 2, G.ROOM.T.h, (4.25 + (j == 2 and 2 or 0)) * G.CARD_W, 1 * G.CARD_H, {
-                card_limit = (1 + j) * 2,
-                type = "voucher",
-                highlight_limit = 0,
-                collection = true
-            })
+            card_limit = (1 + j) * 2,
+            type = "voucher",
+            highlight_limit = 0,
+            collection = true
+        })
         table.insert(deck_tables, {
             n = G.UIT.R,
             config = {
