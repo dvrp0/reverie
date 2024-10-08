@@ -1536,6 +1536,10 @@ function Card:calculate_joker(context)
 end
 
 function Reverie.progress_cine_quest(card)
+    if not card.ability.progress then
+        return
+    end
+
     card.ability.progress = card.ability.progress + 1
 
     for _, v in ipairs(G.jokers.cards) do
@@ -1546,7 +1550,6 @@ function Reverie.progress_cine_quest(card)
     end
 
     if card.ability.progress >= card.ability.extra.goal then
-        card.ability.progress = card.ability.extra.goal
         Reverie.complete_cine_quest(card)
     else
         card_eval_status_text(card, "extra", nil, nil, nil, {
@@ -1587,6 +1590,8 @@ function Reverie.complete_cine_quest(card)
                     if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
                         card.joker_display_values.disabled = true
                     end
+
+                    card.ability.progress = nil
 
                     return true
                 end
