@@ -15,7 +15,7 @@ local film_pack_meteors = {
 }
 
 local function create_tag_pack_card(self, card)
-    return Reverie.create_tag_as_card(G.pack_cards, true, Reverie.booster_excludes)
+    return Reverie.create_tag_as_card(G.pack_cards or G.jokers, true, Reverie.booster_excludes)
 end
 
 local function ease_tag_pack_colour(self)
@@ -24,7 +24,7 @@ local function ease_tag_pack_colour(self)
 end
 
 local function create_crazy_pack_card(self, card)
-    return Reverie.create_crazy_random_card(G.pack_cards, Reverie.booster_excludes)
+    return Reverie.create_crazy_random_card(G.pack_cards or G.jokers, Reverie.booster_excludes)
 end
 
 local function ease_crazy_pack_colour(self)
