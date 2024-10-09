@@ -3,8 +3,6 @@ local function apply_filmstrip(self)
 
     if self.get_current_deck_key() ~= "b_dvrprv_filmstrip" then
         G.GAME.starting_params.cine_quest_slots = G.GAME.starting_params.cine_quest_slots + self.config.cine_slot
-    else
-        G.GAME.cine_rate = self.config.rate
     end
 end
 
