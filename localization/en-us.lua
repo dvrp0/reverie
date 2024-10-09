@@ -523,18 +523,25 @@ return {
             },
             b_dvrprv_tag_packs_shop = "Tag Packs in shop",
             b_dvrprv_tag_packs_shop_info = {
-                "Allow Tag Packs to appear in the shop normally"
+                "Allow Tag Packs to normally appear",
+                "in the shop"
             },
             b_dvrprv_crazy_packs_shop = "Crazy Packs in shop",
             b_dvrprv_crazy_packs_shop_info = {
-                "Allow Crazy Packs to appear in the shop normally"
+                "Allow Crazy Packs to normally appear",
+                "in the shop"
             },
             b_dvrprv_custom_morsel_compat = "Morsel for modded Jokers",
             b_dvrprv_custom_morsel_compat_info =
             {
-                "Enable Morsel compatibilities for Modded Jokers",
+                "Enable custom Morsel compatibilities for Modded Jokers",
                 "(e.g. TWEWJ's Candle Service: Every forth scoring >>>",
                 "Every eighth scoring)"
+            },
+            b_dvrprv_cartomancer_compat = "Cartomancer compatibility",
+            b_dvrprv_cartomancer_compat_info = {
+                "Enable Cartomancer compatibility for",
+                "zooming Cine cards in your possesion"
             }
         },
         labels = {
