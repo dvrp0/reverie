@@ -14,9 +14,10 @@ Reverie.flipped_booster_pos = {
     y = 0
 }
 
-print(inspect(Reverie))
-
 SMODS.current_mod.config_tab = function ()
+    local jokerDisplay = Reverie.find_mod("JokerDisplay")
+    local cartomancer = Reverie.find_mod("cartomancer")
+
     return {
         n = G.UIT.ROOT,
         config = {
@@ -86,34 +87,68 @@ SMODS.current_mod.config_tab = function ()
                     }
                 }
             },
-            create_toggle({
-                label = localize("b_dvrprv_jokerdisplay_compat"),
-                info = localize("b_dvrprv_jokerdisplay_compat_info"),
-                active_colour = Reverie.badge_colour,
-                ref_table = Reverie.config,
-                ref_value = "jokerdisplay_compat"
-            }),
-            create_toggle({
-                label = localize("b_dvrprv_tag_packs_shop"),
-                info = localize("b_dvrprv_tag_packs_shop_info"),
-                active_colour = Reverie.badge_colour,
-                ref_table = Reverie.config,
-                ref_value = "tag_packs_shop"
-            }),
-            create_toggle({
-                label = localize("b_dvrprv_crazy_packs_shop"),
-                info = localize("b_dvrprv_crazy_packs_shop_info"),
-                active_colour = Reverie.badge_colour,
-                ref_table = Reverie.config,
-                ref_value = "crazy_packs_shop"
-            }),
-            create_toggle({
-                label = localize("b_dvrprv_custom_morsel_compat"),
-                info = localize("b_dvrprv_custom_morsel_compat_info"),
-                active_colour = Reverie.badge_colour,
-                ref_table = Reverie.config,
-                ref_value = "custom_morsel_compat"
-            }),
+            {
+                n = G.UIT.R,
+                config = {
+                    align = "cm"
+                },
+                nodes = {
+                    {
+                        n = G.UIT.C,
+                        config = {
+                            minw = 3
+                        },
+                        nodes = {
+                            create_toggle({
+                                label = localize("b_dvrprv_tag_packs_shop"),
+                                info = localize("b_dvrprv_tag_packs_shop_info"),
+                                active_colour = Reverie.badge_colour,
+                                ref_table = Reverie.config,
+                                ref_value = "tag_packs_shop"
+                            }),
+                            create_toggle({
+                                label = localize("b_dvrprv_crazy_packs_shop"),
+                                info = localize("b_dvrprv_crazy_packs_shop_info"),
+                                active_colour = Reverie.badge_colour,
+                                ref_table = Reverie.config,
+                                ref_value = "crazy_packs_shop"
+                            }),
+                            create_toggle({
+                                label = localize("b_dvrprv_custom_morsel_compat"),
+                                info = localize("b_dvrprv_custom_morsel_compat_info"),
+                                active_colour = Reverie.badge_colour,
+                                ref_table = Reverie.config,
+                                ref_value = "custom_morsel_compat"
+                            })
+                        }
+                    },
+                    {
+                        n = G.UIT.C,
+                        config = {
+                            minh = 0.1
+                        }
+                    },
+                    {
+                        n = G.UIT.C,
+                        nodes = {
+                            jokerDisplay and create_toggle({
+                                label = localize("b_dvrprv_jokerdisplay_compat"),
+                                info = localize("b_dvrprv_jokerdisplay_compat_info"),
+                                active_colour = Reverie.badge_colour,
+                                ref_table = Reverie.config,
+                                ref_value = "jokerdisplay_compat"
+                            }) or nil,
+                            cartomancer and create_toggle({
+                                label = localize("b_dvrprv_cartomancer_compat"),
+                                info = localize("b_dvrprv_cartomancer_compat_info"),
+                                active_colour = Reverie.badge_colour,
+                                ref_table = Reverie.config,
+                                ref_value = "cartomancer_compat"
+                            }) or nil
+                        }
+                    }
+                }
+            },
             {
                 n = G.UIT.R,
                 config = {
@@ -122,6 +157,10 @@ SMODS.current_mod.config_tab = function ()
             }
         }
     }
+end
+
+function G.FUNCS.handle_reverie_cartomancer_cycle(args)
+    Reverie.config.cartomancer_compat_show_after = args.to_val
 end
 
 local get_starting_params_ref = get_starting_params
@@ -147,9 +186,16 @@ function Game:start_run(args)
 
     Reverie.set_cine_banned_keys()
     set_screen_positions()
+
     G.GAME.selected_back:trigger_effect({
         context = "setting_tags"
     })
+
+    if G.GAME.selected_sleeve then
+        CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve or "sleeve_casl_none"):trigger_effect({
+            context = "setting_tags"
+        })
+    end
 end
 
 local set_screen_positions_ref = set_screen_positions
@@ -881,6 +927,13 @@ function CardArea:emplace(card, location, stay_flipped)
             card:set_edition({
                 [edition] = true
             })
+        elseif card.ability.set == "Cine" and card.ability.progress and G.GAME.selected_sleeve
+        and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip" and G.GAME.selected_back.name == "Filmstrip Deck" then
+            local odds = CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve).config.odds
+
+            if pseudorandom("filmstrip_sleeve") < G.GAME.probabilities.normal / odds then
+                card:set_edition("e_negative")
+            end
         end
 
         if heist then
@@ -921,10 +974,7 @@ function CardArea:emplace(card, location, stay_flipped)
     end
 end
 
-local calculate_reroll_cost_ref = calculate_reroll_cost
-function calculate_reroll_cost(skip_increment)
-    calculate_reroll_cost_ref(skip_increment)
-
+function Reverie.calculate_reroll_cost()
     if not G.GAME.current_round.used_cine then
         return
     end
@@ -935,6 +985,7 @@ function calculate_reroll_cost(skip_increment)
         local center = Reverie.find_cine_center(v)
 
         if center and type(center.config.extra) == "table" then
+
             if center.config.extra.mult then
                 G.GAME.current_round.reroll_cost = math.max(0, math.floor(G.GAME.current_round.reroll_cost * center.config.extra.mult))
             elseif center.config.extra.add then
@@ -1072,7 +1123,7 @@ function Reverie.use_cine(center, card, area, copier)
                         table.insert(G.GAME.current_round.used_cine, v.name)
                     end
                 end
-            elseif G.GAME.selected_back.name == "Filmstrip Deck" then
+            elseif G.GAME.selected_back.name == "Filmstrip Deck" or (G.GAME.selected_sleeve and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip") then
                 table.insert(G.GAME.current_round.used_cine, card.ability.name)
             elseif not Reverie.find_used_cine(card.ability.name) then
                 G.GAME.current_round.used_cine = {
@@ -1081,6 +1132,7 @@ function Reverie.use_cine(center, card, area, copier)
             end
 
             calculate_reroll_cost(true)
+            Reverie.calculate_reroll_cost()
 
             if (is_reverie or card.ability.name == "Fool Metal Alchemist") and G.P_CENTERS.c_dvrprv_alchemist
             and not G.GAME.current_round.cine_temporary_consumeable_limit then
@@ -1537,6 +1589,10 @@ function Card:calculate_joker(context)
 end
 
 function Reverie.progress_cine_quest(card)
+    if not card.ability.progress then
+        return
+    end
+
     card.ability.progress = card.ability.progress + 1
 
     for _, v in ipairs(G.jokers.cards) do
@@ -1547,7 +1603,6 @@ function Reverie.progress_cine_quest(card)
     end
 
     if card.ability.progress >= card.ability.extra.goal then
-        card.ability.progress = card.ability.extra.goal
         Reverie.complete_cine_quest(card)
     else
         card_eval_status_text(card, "extra", nil, nil, nil, {
@@ -1585,9 +1640,11 @@ function Reverie.complete_cine_quest(card)
                         discover_card(card.config.center)
                     end
 
-                    if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
+                    if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] and Reverie.config.jokerdisplay_compat then
                         card.joker_display_values.disabled = true
                     end
+
+                    card.ability.progress = nil
 
                     return true
                 end
@@ -1853,9 +1910,16 @@ end
 local cash_out_ref = G.FUNCS.cash_out
 function G.FUNCS.cash_out(e)
     cash_out_ref(e)
+
     G.GAME.selected_back:trigger_effect({
         context = "setting_tags"
     })
+
+    if G.GAME.selected_sleeve then
+        CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve or "sleeve_casl_none"):trigger_effect({
+            context = "setting_tags"
+        })
+    end
 end
 
 function Reverie.halve_cine_quest_goal(value)
@@ -1888,4 +1952,52 @@ end
 
 function Reverie.find_mod(id)
     return (SMODS.Mods[id] or {}).can_load
+end
+
+if Reverie.find_mod("cartomancer") and Cartomancer then
+    local expand_G_jokers_ref = Cartomancer.expand_G_jokers
+    function Cartomancer.expand_G_jokers()
+        local result = expand_G_jokers_ref()
+
+        local self_T_w = math.max(4.9 * G.CARD_W, 0.6 * #G.cine_quests.cards * G.CARD_W)
+        local self_T_x = G.jokers.T.x - (self_T_w- 4.9 * G.CARD_W) * G.jokers.cart_zoom_slider / 100
+
+        local self = G.cine_quests
+
+        for k, card in ipairs(self.cards) do
+            if not card.states.drag.is then
+                card.T.r = 0.1*(-#self.cards/2 - 0.5 + k)/(#self.cards)+ (G.SETTINGS.reduced_motion and 0 or 1)*0.02*math.sin(2*G.TIMERS.REAL+card.T.x)
+                local max_cards = 1
+                card.T.x = self_T_x + (self_T_w-self.card_w)*((k-1)/math.max(max_cards-1, 1) - 0.5*(#self.cards-max_cards)/math.max(max_cards-1, 1)) + 0.5*(self.card_w - card.T.w)
+                if #self.cards > 2 or (#self.cards > 1 and self == G.consumeables) or (#self.cards > 1 and self.config.spread) then
+                    card.T.x = self_T_x + (self_T_w-self.card_w)*((k-1)/(#self.cards-1)) + 0.5*(self.card_w - card.T.w)
+                elseif #self.cards > 1 and self ~= G.consumeables then
+                    card.T.x = self_T_x + (self_T_w-self.card_w)*((k - 0.5)/(#self.cards)) + 0.5*(self.card_w - card.T.w)
+                else
+                    card.T.x = self_T_x + self_T_w/2 - self.card_w/2 + 0.5*(self.card_w - card.T.w)
+                end
+                local highlight_height = G.HIGHLIGHT_H/2
+                if not card.highlighted then highlight_height = 0 end
+                card.T.y = self.T.y + self.T.h/2 - card.T.h/2 - highlight_height+ (G.SETTINGS.reduced_motion and 0 or 1)*0.03*math.sin(0.666*G.TIMERS.REAL+card.T.x)
+                card.T.x = card.T.x + card.shadow_parrallax.x/30
+            end
+        end
+
+        return result
+    end
+
+    local align_cards_ref = CardArea.align_cards
+    function CardArea:align_cards()
+        align_cards_ref(self)
+
+        if self == G.cine_quests and G.jokers.cart_jokers_expanded then
+            local align_cards = Cartomancer.expand_G_jokers()
+
+            table.sort(self.cards, function (a, b) return a.T.x + a.T.w/2 - 100*(a.pinned and a.sort_id or 0) < b.T.x + b.T.w/2 - 100*(b.pinned and b.sort_id or 0) end)
+
+            if align_cards then
+                self:hard_set_cards()
+            end
+        end
+    end
 end

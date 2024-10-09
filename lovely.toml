@@ -484,3 +484,31 @@ position = "before"
 payload = '''
 morseled = HEX("b0aa9f"),'''
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''calculate_reroll_cost(final_free)'''
+position = "after"
+payload = '''
+Reverie.calculate_reroll_cost()
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''if polled_rate > check_rate and polled_rate <= check_rate + v.val then'''
+position = "before"
+payload = '''
+    if _ == 1 and G.GAME.selected_sleeve and G.GAME.selected_sleeve == "sleeve_dvrprv_filmstrip" and G.GAME.selected_back.name == "Filmstrip Deck" then
+        local rate = CardSleeves.Sleeve:get_obj(G.GAME.selected_sleeve).config.rate
+        table.insert(rates, {
+            type = "Cine_Quest",
+            val = rate
+        })
+        total_rate = total_rate + rate
+        polled_rate = pseudorandom(pseudoseed("cdt"..G.GAME.round_resets.ante)) * total_rate
+    end
+'''
+match_indent = true

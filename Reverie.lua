@@ -25,3 +25,7 @@ SMODS.load_file("data/shaders.lua")()
 if Reverie.find_mod("JokerDisplay") and _G["JokerDisplay"] then
     SMODS.load_file("data/joker_display.lua")()
 end
+
+if Reverie.find_mod("CardSleeves") and CardSleeves.Sleeve then
+    SMODS.load_file("data/sleeves.lua")()
+end
